@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 // material-ui
 import { useTheme } from '@mui/material/styles';
@@ -39,7 +39,7 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AuthService from 'services/auth.service';
-
+import { openSnackbar } from 'slices/snackbar';
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const FirebaseRegister = ({ ...others }) => {
@@ -52,6 +52,7 @@ const FirebaseRegister = ({ ...others }) => {
     const [message, setMessage] = useState('');
     const [successful, setSuccessful] = useState(false);
     const [fail, setFail] = useState(false);
+    const dispatch = useDispatch();
 
     const [strength, setStrength] = useState(0);
     const [level, setLevel] = useState();
@@ -188,6 +189,74 @@ const FirebaseRegister = ({ ...others }) => {
             >
                 {({ errors, handleBlur, handleChange, handleSubmit, isSubmitting, touched, values }) => (
                     <form noValidate onSubmit={handleSubmit} {...others}>
+                        <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
+                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address </InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-email-register"
+                                type="email"
+                                value={values.email}
+                                name="email"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.email && errors.email && (
+                                <FormHelperText error id="standard-weight-helper-text--register">
+                                    {errors.email}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
+
+                        <Grid item>
+                            <Box sx={{ mt: 2 }}>
+                                <AnimateButton>
+                                    <Button
+                                        disableElevation
+                                        onClick={() => {
+                                            try {
+                                                // navigate('/dashboard/lockhood', { replace: true });
+                                                AuthService.sendOTP(values.email);
+                                                if (scriptedRef.current) {
+                                                    // setStatus({ success: true });
+                                                    // setSubmitting(false);
+                                                    dispatch(
+                                                        openSnackbar({
+                                                            open: true,
+                                                            message: 'OTP Sent SucessFully.',
+                                                            variant: 'alert',
+                                                            alert: {
+                                                                color: 'success'
+                                                            },
+                                                            close: false
+                                                        })
+                                                    );
+
+                                                    // setTimeout(() => {
+                                                    //     navigate('/login', { replace: true });
+                                                    // }, 1500);
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                                if (scriptedRef.current) {
+                                                    // setStatus({ success: false });
+                                                    // setErrors({ submit: err.message });
+                                                    // setSubmitting(false);
+                                                }
+                                            }
+                                        }}
+                                        disabled={isSubmitting}
+                                        fullWidth
+                                        size="large"
+                                        type="button"
+                                        variant="contained"
+                                        color="primary"
+                                    >
+                                        Send OTP
+                                    </Button>
+                                </AnimateButton>
+                            </Box>
+                        </Grid>
+
                         {/* <Grid container spacing={matchDownSM ? 0 : 2}>
                             <Grid item xs={12} sm={6}>
                                 <TextField
@@ -230,23 +299,6 @@ const FirebaseRegister = ({ ...others }) => {
                             {touched.username && errors.username && (
                                 <FormHelperText error id="standard-weight-helper-text--register">
                                     {errors.username}
-                                </FormHelperText>
-                            )}
-                        </FormControl>
-                        <FormControl fullWidth error={Boolean(touched.email && errors.email)} sx={{ ...theme.typography.customInput }}>
-                            <InputLabel htmlFor="outlined-adornment-email-register">Email Address </InputLabel>
-                            <OutlinedInput
-                                id="outlined-adornment-email-register"
-                                type="email"
-                                value={values.email}
-                                name="email"
-                                onBlur={handleBlur}
-                                onChange={handleChange}
-                                inputProps={{}}
-                            />
-                            {touched.email && errors.email && (
-                                <FormHelperText error id="standard-weight-helper-text--register">
-                                    {errors.email}
                                 </FormHelperText>
                             )}
                         </FormControl>

@@ -53,7 +53,7 @@ const Register = () => {
                                                         fontSize="16px"
                                                         textAlign={matchDownSM ? 'center' : 'inherit'}
                                                     >
-                                                        Enter your credentials to continue
+                                                        Enter vehicle owner credentials to continue
                                                     </Typography>
                                                 </Stack>
                                             </Grid>
@@ -69,7 +69,7 @@ const Register = () => {
                                         <Grid item container direction="column" alignItems="center" xs={12}>
                                             <Typography
                                                 component={Link}
-                                                to="/pages/login/login3"
+                                                to="/pages/login"
                                                 variant="subtitle1"
                                                 sx={{ textDecoration: 'none' }}
                                             >

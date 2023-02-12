@@ -25,6 +25,17 @@ const login = (username, password) => {
         });
 };
 
+const sendOTP = (email) => {
+    console.log(email);
+    return axios.post(API_URL + 'sendOTPMail/' + `${email}`, {}).then((response) => {
+        // if (response.data.accessToken) {
+        //     localStorage.setItem('user', JSON.stringify(response.data));
+        // }
+
+        return response.data;
+    });
+};
+
 const logout = () => {
     localStorage.removeItem('user');
 };
@@ -38,7 +49,8 @@ const AuthService = {
     register,
     login,
     logout,
-    getCurrentUser
+    getCurrentUser,
+    sendOTP
 };
 
 export default AuthService;

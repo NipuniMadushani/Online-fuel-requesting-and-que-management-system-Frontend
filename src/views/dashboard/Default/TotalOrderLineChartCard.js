@@ -18,6 +18,7 @@ import ChartDataYear from './chart-data/total-order-year-line-chart';
 // assets
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { useNavigate } from 'react-router';
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.primary.dark,
@@ -65,17 +66,24 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 const TotalOrderLineChartCard = ({ isLoading }) => {
     const theme = useTheme();
+    const navigate = useNavigate();
 
     const [timeValue, setTimeValue] = useState(false);
     const handleChangeTime = (event, newValue) => {
         setTimeValue(newValue);
     };
 
+    const generateToken = () => {
+        // setAnchorEl(null);
+        navigate('/generate-token', { replace: true });
+    };
+
     return (
         <>
             {isLoading ? (
-                <SkeletonTotalOrderCard />
+                ''
             ) : (
+                // <SkeletonTotalOrderCard />
                 <CardWrapper border={false} content={false}>
                     <Box sx={{ p: 2.25 }}>
                         <Grid container direction="column">
@@ -83,6 +91,7 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                                 <Grid container justifyContent="space-between">
                                     <Grid item>
                                         <Avatar
+                                            // click={generateToken}
                                             variant="rounded"
                                             sx={{
                                                 ...theme.typography.commonAvatar,
@@ -92,28 +101,8 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                                                 mt: 1
                                             }}
                                         >
-                                            <LocalMallOutlinedIcon fontSize="inherit" />
+                                            <LocalMallOutlinedIcon onClick={generateToken} fontSize="inherit" />
                                         </Avatar>
-                                    </Grid>
-                                    <Grid item>
-                                        <Button
-                                            disableElevation
-                                            variant={timeValue ? 'contained' : 'text'}
-                                            size="small"
-                                            sx={{ color: 'inherit' }}
-                                            onClick={(e) => handleChangeTime(e, true)}
-                                        >
-                                            Month
-                                        </Button>
-                                        <Button
-                                            disableElevation
-                                            variant={!timeValue ? 'contained' : 'text'}
-                                            size="small"
-                                            sx={{ color: 'inherit' }}
-                                            onClick={(e) => handleChangeTime(e, false)}
-                                        >
-                                            Year
-                                        </Button>
                                     </Grid>
                                 </Grid>
                             </Grid>
@@ -121,29 +110,6 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                                 <Grid container alignItems="center">
                                     <Grid item xs={6}>
                                         <Grid container alignItems="center">
-                                            <Grid item>
-                                                {timeValue ? (
-                                                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                                                        $108
-                                                    </Typography>
-                                                ) : (
-                                                    <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                                                        $961
-                                                    </Typography>
-                                                )}
-                                            </Grid>
-                                            <Grid item>
-                                                <Avatar
-                                                    sx={{
-                                                        ...theme.typography.smallAvatar,
-                                                        cursor: 'pointer',
-                                                        backgroundColor: theme.palette.primary[200],
-                                                        color: theme.palette.primary.dark
-                                                    }}
-                                                >
-                                                    <ArrowDownwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
-                                                </Avatar>
-                                            </Grid>
                                             <Grid item xs={12}>
                                                 <Typography
                                                     sx={{
@@ -152,14 +118,14 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                                                         color: theme.palette.primary[200]
                                                     }}
                                                 >
-                                                    Total Order
+                                                    Token Generate
                                                 </Typography>
                                             </Grid>
                                         </Grid>
                                     </Grid>
-                                    <Grid item xs={6}>
+                                    {/* <Grid item xs={6}>
                                         {timeValue ? <Chart {...ChartDataMonth} /> : <Chart {...ChartDataYear} />}
-                                    </Grid>
+                                    </Grid> */}
                                 </Grid>
                             </Grid>
                         </Grid>

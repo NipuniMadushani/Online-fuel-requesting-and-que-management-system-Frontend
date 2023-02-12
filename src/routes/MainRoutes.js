@@ -3,6 +3,8 @@ import { lazy } from 'react';
 // project imports
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
+import ViewVahicleDetails from 'views/pages/vehicleManagement/ViewVahicleDetails';
+import ViewGenerateToken from 'views/pages/generateQRCode/ViewGenerateToken';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -84,6 +86,14 @@ const MainRoutes = {
         {
             path: 'sample-page',
             element: <SamplePage />
+        },
+        {
+            path: 'manage-vehicle',
+            element: <ViewVahicleDetails />
+        },
+        {
+            path: 'generate-token',
+            element: <ViewGenerateToken />
         }
     ]
 };

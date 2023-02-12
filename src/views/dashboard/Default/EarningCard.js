@@ -17,7 +17,9 @@ import GetAppTwoToneIcon from '@mui/icons-material/GetAppOutlined';
 import FileCopyTwoToneIcon from '@mui/icons-material/FileCopyOutlined';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined';
-
+import AddIcon from '@mui/icons-material/Add';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import { useNavigate } from 'react-router';
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.secondary.dark,
     color: '#fff',
@@ -58,7 +60,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 const EarningCard = ({ isLoading }) => {
     const theme = useTheme();
-
+    const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleClick = (event) => {
@@ -69,11 +71,17 @@ const EarningCard = ({ isLoading }) => {
         setAnchorEl(null);
     };
 
+    const manageVehicleDetails = () => {
+        setAnchorEl(null);
+        navigate('/manage-vehicle', { replace: true });
+    };
+
     return (
         <>
             {isLoading ? (
-                <SkeletonEarningCard />
+                ''
             ) : (
+                // <SkeletonEarningCard />
                 <CardWrapper border={false} content={false}>
                     <Box sx={{ p: 2.25 }}>
                         <Grid container direction="column">
@@ -124,6 +132,9 @@ const EarningCard = ({ isLoading }) => {
                                                 horizontal: 'right'
                                             }}
                                         >
+                                            <MenuItem onClick={manageVehicleDetails} to="/pages/login/login3">
+                                                <AddIcon sx={{ mr: 1.75 }} /> Add Vehicle
+                                            </MenuItem>
                                             <MenuItem onClick={handleClose}>
                                                 <GetAppTwoToneIcon sx={{ mr: 1.75 }} /> Import Card
                                             </MenuItem>
@@ -144,10 +155,10 @@ const EarningCard = ({ isLoading }) => {
                                 <Grid container alignItems="center">
                                     <Grid item>
                                         <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                                            $500.00
+                                            {/* $500.00 */}
                                         </Typography>
                                     </Grid>
-                                    <Grid item>
+                                    {/* <Grid item>
                                         <Avatar
                                             sx={{
                                                 cursor: 'pointer',
@@ -158,7 +169,7 @@ const EarningCard = ({ isLoading }) => {
                                         >
                                             <ArrowUpwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
                                         </Avatar>
-                                    </Grid>
+                                    </Grid> */}
                                 </Grid>
                             </Grid>
                             <Grid item sx={{ mb: 1.25 }}>
@@ -169,7 +180,7 @@ const EarningCard = ({ isLoading }) => {
                                         color: theme.palette.secondary[200]
                                     }}
                                 >
-                                    Total Earning
+                                    Vehicle Details
                                 </Typography>
                             </Grid>
                         </Grid>
