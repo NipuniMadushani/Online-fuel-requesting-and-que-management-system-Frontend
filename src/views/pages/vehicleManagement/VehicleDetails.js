@@ -31,12 +31,19 @@ import { Formik, Form } from 'formik';
 // import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 // import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { saveVehicleData } from 'store/actions/VehicleAction';
+import {
+    checkChassisNumber,
+    checkDuplicateVehiclesCode,
+    checkVehicleNumber,
+    getVehicleDetailsByCode,
+    saveVehicleData,
+    updateVehicleData
+} from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
-function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
+function VehicleDetails({ open, handleClose, mode, vehicleId }) {
     const currentUser = AuthService.getCurrentUser();
     const initialValues = {
         id: '',
@@ -45,39 +52,58 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
         vehicleType: '',
         fuelType: '',
         createdBy: 'admin',
-        userId: currentUser
+        userId: currentUser.id
     };
 
     const [formValues, setFormValues] = useState(initialValues);
     const [loadValues, setLoadValues] = useState(null);
     const dispatch = useDispatch();
 
-    // const taxToUpdate = useSelector((state) => state.taxReducer.taxToUpdate);
-    // const duplicateTax = useSelector((state) => state.taxReducer.duplicateTax);
+    const vehicleToUpdate = useSelector((state) => state.vehicleReducer.vehicleToUpdate);
+    const duplicateVehicleNumber = useSelector((state) => state.vehicleReducer.duplicateVehicleNumber);
 
-    // yup.addMethod(yup.string, 'checkDuplicateTax', function (message) {
-    //     return this.test('checkDuplicateTax', message, async function validateValue(value) {
-    //         if (mode === 'INSERT') {
-    //             try {
-    //                 await dispatch(checkDuplicatevehicleNumber(value));
+    const duplicateChassisNumber = useSelector((state) => state.vehicleReducer.duplicateChassisNumber);
 
-    //                 if (duplicateTax != null && duplicateTax.errorMessages.length != 0) {
-    //                     return false;
-    //                 } else {
-    //                     return true;
-    //                 }
-    //                 return false; // or true as you see fit
-    //             } catch (error) {}
-    //         }
-    //         return true;
-    //     });
-    // });
+    yup.addMethod(yup.string, 'checkDuplicateVehicleNumber', function (message) {
+        return this.test('checkDuplicateVehicleNumber', message, async function validateValue(value) {
+            if (mode === 'INSERT') {
+                try {
+                    await dispatch(checkVehicleNumber(value));
+
+                    if (duplicateVehicleNumber != null && duplicateVehicleNumber.errorMessages.length != 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                    return false; // or true as you see fit
+                } catch (error) {}
+            }
+            return true;
+        });
+    });
+
+    yup.addMethod(yup.string, 'checkDuplicateChassis', function (message) {
+        return this.test('checkDuplicateChassis', message, async function validateValue(value) {
+            if (mode === 'INSERT') {
+                try {
+                    await dispatch(checkChassisNumber(value));
+
+                    if (duplicateChassisNumber != null && duplicateChassisNumber.errorMessages.length != 0) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                    return false; // or true as you see fit
+                } catch (error) {}
+            }
+            return true;
+        });
+    });
 
     const validationSchema = yup.object().shape({
         status: yup.boolean(),
-        vehicleNumber: yup.string().required('Required field'),
-        // checkDuplicateTax('Duplicate Code'),
-        chassisNumber: yup.string().required('Required field'),
+        vehicleNumber: yup.string().required('Required field').checkDuplicateVehicleNumber('Already Exist Vehicle Number'),
+        chassisNumber: yup.string().required('Required field').checkDuplicateChassis('Already Exist Chassis Number'),
         vehicleType: yup.string().required('Required field'),
         fuelType: yup.string().required('Required field')
     });
@@ -88,7 +114,7 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
             dispatch(saveVehicleData(data));
         } else if (mode === 'VIEW_UPDATE') {
             console.log('yes click');
-            // dispatch(updateTaxData(data));
+            dispatch(updateVehicleData(data));
         }
 
         handleClose();
@@ -96,19 +122,20 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
 
     useEffect(() => {
         if (mode === 'VIEW_UPDATE' || mode === 'VIEW') {
-            // dispatch(getTaxDataById(rowvehicleNumber));
+            console.log('vehicle id:' + vehicleId);
+            dispatch(getVehicleDetailsByCode(vehicleId));
         }
     }, [mode]);
 
-    // useEffect(() => {
-    //     if ((mode === 'VIEW_UPDATE' && taxToUpdate != null) || (mode === 'VIEW' && taxToUpdate != null)) {
-    //         console.log(taxToUpdate);
-    //         if (taxToUpdate.toDate === null) {
-    //             taxToUpdate.toDate = '';
-    //         }
-    //         setLoadValues(taxToUpdate);
-    //     }
-    // }, [taxToUpdate]);
+    useEffect(() => {
+        if ((mode === 'VIEW_UPDATE' && vehicleToUpdate != null) || (mode === 'VIEW' && vehicleToUpdate != null)) {
+            console.log(vehicleToUpdate);
+            // if (taxToUpdate.toDate === null) {
+            //     vehicleToUpdate.toDate = '';
+            // }
+            setLoadValues(vehicleToUpdate);
+        }
+    }, [vehicleToUpdate]);
 
     return (
         <div>
@@ -125,7 +152,7 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
                 <DialogTitle>
                     <Box display="flex" className="dialog-title">
                         <Box flexGrow={1}>
-                            {mode === 'INSERT' ? 'Register' : ''} {mode === 'VIEW_UPDATE' ? 'Update' : ''} {mode === 'VIEW' ? 'View' : ''}
+                            {mode === 'INSERT' ? 'Register' : ''} {mode === 'VIEW_UPDATE' ? 'Update' : ''} {mode === 'VIEW' ? 'View  ' : ''}
                             Vehicle
                         </Box>
                         <Box>
@@ -265,7 +292,7 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
                                             </Grid>
                                         </Box>
                                         <Box display="flex" flexDirection="row-reverse" style={{ marginTop: '20px' }}>
-                                            {mode != 'VIEW' ? (
+                                            {mode == 'INSERT' ? (
                                                 <Button
                                                     variant="outlined"
                                                     type="button"
@@ -281,7 +308,7 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
                                                 ''
                                             )}
 
-                                            {mode != 'VIEW' ? (
+                                            {mode == 'INSERT' ? (
                                                 <Button className="btnSave" variant="contained" type="submit">
                                                     {mode === 'INSERT' ? 'SAVE' : 'UPDATE'}
                                                 </Button>
@@ -289,11 +316,11 @@ function VehicleDetails({ open, handleClose, mode, rowvehicleNumber }) {
                                                 ''
                                             )}
                                         </Box>
-                                        <Box>
+                                        {/* <Box>
                                             <Grid item>
                                                 {mode === 'VIEW' ? <CreatedUpdatedUserDetailsWithTableFormat formValues={values} /> : null}
                                             </Grid>
-                                        </Box>
+                                        </Box> */}
                                     </Form>
                                 );
                             }}

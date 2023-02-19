@@ -17,8 +17,11 @@ import ChartDataYear from './chart-data/total-order-year-line-chart';
 
 // assets
 import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useNavigate } from 'react-router';
+import AuthService from 'services/auth.service';
+import { useEffect } from 'react';
 
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.primary.dark,
@@ -67,7 +70,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 const TotalOrderLineChartCard = ({ isLoading }) => {
     const theme = useTheme();
     const navigate = useNavigate();
-
+    const [vehicleOwnerCardVisible, setVehicleOwnerCardVisible] = useState(false);
     const [timeValue, setTimeValue] = useState(false);
     const handleChangeTime = (event, newValue) => {
         setTimeValue(newValue);
@@ -77,6 +80,15 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
         // setAnchorEl(null);
         navigate('/generate-token', { replace: true });
     };
+    useEffect(() => {
+        const currentUser = AuthService.getCurrentUser();
+        console.log(currentUser?.roles[0]);
+        if (currentUser?.roles[0] === 'ROLE_CUSTOMER') {
+            setVehicleOwnerCardVisible(true);
+        } else {
+            setVehicleOwnerCardVisible(false);
+        }
+    }, []);
 
     return (
         <>
@@ -86,49 +98,53 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                 // <SkeletonTotalOrderCard />
                 <CardWrapper border={false} content={false}>
                     <Box sx={{ p: 2.25 }}>
-                        <Grid container direction="column">
-                            <Grid item>
-                                <Grid container justifyContent="space-between">
-                                    <Grid item>
-                                        <Avatar
-                                            // click={generateToken}
-                                            variant="rounded"
-                                            sx={{
-                                                ...theme.typography.commonAvatar,
-                                                ...theme.typography.largeAvatar,
-                                                backgroundColor: theme.palette.primary[800],
-                                                color: '#fff',
-                                                mt: 1
-                                            }}
-                                        >
-                                            <LocalMallOutlinedIcon onClick={generateToken} fontSize="inherit" />
-                                        </Avatar>
-                                    </Grid>
-                                </Grid>
-                            </Grid>
-                            <Grid item sx={{ mb: 0.75 }}>
-                                <Grid container alignItems="center">
-                                    <Grid item xs={6}>
-                                        <Grid container alignItems="center">
-                                            <Grid item xs={12}>
-                                                <Typography
-                                                    sx={{
-                                                        fontSize: '1rem',
-                                                        fontWeight: 500,
-                                                        color: theme.palette.primary[200]
-                                                    }}
-                                                >
-                                                    Token Generate
-                                                </Typography>
-                                            </Grid>
+                        {vehicleOwnerCardVisible ? (
+                            <Grid container direction="column">
+                                <Grid item>
+                                    <Grid container justifyContent="space-between">
+                                        <Grid item sx={{ mb: 1.25 }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '1rem',
+                                                    fontWeight: 500,
+                                                    color: theme.palette.secondary[200]
+                                                }}
+                                            >
+                                                Token Generate
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item>
+                                            <Avatar
+                                                // click={generateToken}
+                                                variant="rounded"
+                                                sx={{
+                                                    ...theme.typography.commonAvatar,
+                                                    ...theme.typography.largeAvatar,
+                                                    backgroundColor: theme.palette.primary[800],
+                                                    color: '#fff',
+                                                    mt: 1
+                                                }}
+                                            >
+                                                <QrCodeIcon onClick={generateToken} fontSize="inherit" />
+                                            </Avatar>
                                         </Grid>
                                     </Grid>
-                                    {/* <Grid item xs={6}>
-                                        {timeValue ? <Chart {...ChartDataMonth} /> : <Chart {...ChartDataYear} />}
-                                    </Grid> */}
+                                </Grid>
+
+                                <Grid item>
+                                    <Grid container>
+                                        <Grid item>
+                                            <Typography sx={{ mr: 1, mt: 1.75, mb: 0.75 }}>
+                                                In order to obtain fuel, simply produce the QR code at the fuel station where the staff at
+                                                the station will scan the QR code and validate the eligibility and allocation of fuel
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
                             </Grid>
-                        </Grid>
+                        ) : (
+                            ''
+                        )}
                     </Box>
                 </CardWrapper>
             )}

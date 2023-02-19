@@ -13,12 +13,13 @@ import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
 import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
-import VehicleDetails from './VehicleDetails';
+import FuelRequest from './FuelRequest';
+// import VehicleDetails from './VehicleDetails';
 
-function ViewVahicleDetails() {
+function ViewFuelRequst() {
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
-    const [vehicleId, setVehicleId] = useState('');
+    const [fuelRequstId, setFuelRequstId] = useState('');
     const [mode, setMode] = useState('INSERT');
     const [openToast, setHandleToast] = useState(false);
     const [openErrorToast, setOpenErrorToast] = useState(false);
@@ -58,39 +59,6 @@ function ViewVahicleDetails() {
             field: 'fuelType',
             filterPlaceholder: 'filter',
             align: 'center'
-        },
-
-        {
-            title: 'Status',
-            field: 'activeState',
-            filterPlaceholder: 'True || False',
-            align: 'center',
-            emptyValue: () => <em>null</em>,
-            render: (rowData) => (
-                <div
-                    style={{
-                        alignItems: 'center',
-                        align: 'center',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                        // background: rowData.status === true ? "#008000aa" : "#f90000aa",
-                        // borderRadius: "4px",
-                        // paddingLeft: 5,
-                        // paddingRight: 5,
-                    }}
-                >
-                    {rowData.activeState === true ? (
-                        <FormGroup>
-                            <FormControlLabel control={<Switch size="small" />} checked={true} />
-                        </FormGroup>
-                    ) : (
-                        <FormGroup>
-                            <FormControlLabel control={<Switch color="error" size="small" />} checked={false} />
-                        </FormGroup>
-                    )}
-                </div>
-            )
         }
 
         // {
@@ -167,7 +135,6 @@ function ViewVahicleDetails() {
     }, [vehicle]);
 
     useEffect(() => {
-        console.log(currentUser.id);
         dispatch(getAllVehicleData(currentUser.id));
         // dispatch(getActivity_SupplementLatestModifiedDetails());
     }, []);
@@ -175,13 +142,13 @@ function ViewVahicleDetails() {
     const handleClickOpen = (type, data) => {
         if (type === 'VIEW_UPDATE') {
             setMode(type);
-            setVehicleId(data.id);
+            setFuelRequstId(data.id);
         } else if (type === 'INSERT') {
-            setVehicleId('');
+            setFuelRequstId('');
             setMode(type);
         } else {
             setMode(type);
-            setVehicleId(data.id);
+            setFuelRequstId(data.id);
         }
         setOpen(true);
     };
@@ -190,15 +157,21 @@ function ViewVahicleDetails() {
         setOpen(false);
     };
 
+    useEffect(() => {
+        dispatch(getAllVehicleData(currentUser.id));
+        // dispatch(getActivity_SupplementLatestModifiedDetails());
+    }, []);
+
     const handleToast = () => {
         setHandleToast(false);
     };
     const handleErrorToast = () => {
         setOpenErrorToast(false);
     };
+
     return (
         <div>
-            <MainCard title="Vehicle Details">
+            <MainCard title="Fuel Request">
                 {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
                 <br />
                 <Grid container spacing={gridSpacing}>
@@ -267,7 +240,7 @@ function ViewVahicleDetails() {
                                     }}
                                 />
 
-                                {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
+                                {open ? <FuelRequest open={open} handleClose={handleClose} vehicleId={fuelRequstId} mode={mode} /> : ''}
                                 {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
                                 {openErrorToast ? (
                                     <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
@@ -282,4 +255,24 @@ function ViewVahicleDetails() {
     );
 }
 
-export default ViewVahicleDetails;
+export default ViewFuelRequst;
+
+// import React, { Component } from 'react';
+// import { Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
+// export class ViewFuelRequest extends Component {
+//     render() {
+//         return (
+//             <Map google={this.props.google} zoom={14}>
+//                 <Marker onClick={this.onMarkerClick} name={'Current location'} />
+
+//                 <InfoWindow onClose={this.onInfoWindowClose}>
+//                     <div>{/* <h1>{this.state.selectedPlace.name}</h1> */}</div>
+//                 </InfoWindow>
+//             </Map>
+//         );
+//     }
+// }
+
+// export default GoogleApiWrapper({
+//     apiKey: 'AIzaSyCmlZj4mYFWhw5LZPMRTLZPThcO0qE5HCM'
+// })(ViewFuelRequest);

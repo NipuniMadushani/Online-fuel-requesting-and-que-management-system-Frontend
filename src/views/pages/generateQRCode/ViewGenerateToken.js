@@ -4,6 +4,7 @@ import { gridSpacing } from 'store/constant';
 import { Formik, Form, FieldArray } from 'formik';
 import QRCode from 'qrcode';
 import QrScanner from 'qr-scanner';
+import { QrReader } from 'react-qr-reader';
 import {
     Dialog,
     Slide,
@@ -36,10 +37,11 @@ const ViewGenerateToken = () => {
         toDate: '',
         createdBy: 'admin'
     };
-    const [qrValue, setQrValue] = useState('Yuneth Anjana');
+    const [qrValue, setQrValue] = useState('Malinga Lakshan');
     const [qrImageUrl, setqrImgaeUrl] = useState('');
     const [data, setData] = useState(null);
     const [file, setFile] = useState(null);
+    const [scanResultWebCam, setScanResultWebCam] = useState('');
     const fileRef = useRef();
 
     const handleSubmitForm = async (e) => {
@@ -61,6 +63,15 @@ const ViewGenerateToken = () => {
         const result = await QrScanner.scanImage(file);
         console.log(result);
         setData(result);
+    };
+
+    const handleErrorWebCam = (error) => {
+        console.log(error);
+    };
+    const handleScanWebCam = (result) => {
+        if (result) {
+            setScanResultWebCam(result);
+        }
     };
 
     return (
@@ -215,7 +226,7 @@ const ViewGenerateToken = () => {
                                                             ''
                                                         )}
 
-                                                        {qrImageUrl ? (
+                                                        {/* {qrImageUrl ? (
                                                             <a href={qrImageUrl} download={qrValue}>
                                                                 <img src={qrImageUrl} alt="QR Code"></img>
                                                             </a>
@@ -224,13 +235,19 @@ const ViewGenerateToken = () => {
                                                             //     {mode === 'INSERT' ? 'SAVE' : 'UPDATE'}
                                                             // </Button>
                                                             ''
-                                                        )}
+                                                        )} */}
                                                     </Grid>
                                                 </Box>
                                             </Form>
                                         );
                                     }}
                                 </Formik>
+                                <h3>QR Scan by web cam</h3>
+                                <Grid item>
+                                    <h3>Qr Code Scan by Web Cam</h3>
+                                    <QrReader delay={300} style={{ width: '100%' }} onError={handleErrorWebCam} onScan={handleScanWebCam} />
+                                    <h3>Scanned By WebCam Code: {scanResultWebCam}</h3>
+                                </Grid>
                             </Grid>
                             <Grid item xs={6}>
                                 <Typography sx={{ fontSize: '1.125rem', fontWeight: 100, mr: 1, mt: 1.75, mb: 0.75 }}>

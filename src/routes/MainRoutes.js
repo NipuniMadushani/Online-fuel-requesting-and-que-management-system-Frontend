@@ -5,6 +5,10 @@ import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import ViewVahicleDetails from 'views/pages/vehicleManagement/ViewVahicleDetails';
 import ViewGenerateToken from 'views/pages/generateQRCode/ViewGenerateToken';
+import ViewFuelRequst from 'views/pages/fuelRequest/ViewFuelRequest';
+import ViewGoogleMap from 'views/pages/googleMap/ViewGoogleMap';
+import ViewPayment from 'views/pages/payment/ViewPayment';
+import ViewFuelStationRegistrtion from 'views/pages/fuelStation/ViewFuelStationRegistration';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -85,7 +89,8 @@ const MainRoutes = {
         },
         {
             path: 'sample-page',
-            element: <SamplePage />
+            // element: <SamplePage />
+            element: <ViewGoogleMap />
         },
         {
             path: 'manage-vehicle',
@@ -94,6 +99,22 @@ const MainRoutes = {
         {
             path: 'generate-token',
             element: <ViewGenerateToken />
+        },
+        {
+            path: 'fuel-request',
+            element: <ViewFuelRequst />
+        },
+        {
+            path: 'google-map',
+            element: <ViewGoogleMap />
+        },
+        {
+            path: 'payment',
+            element: <ViewPayment />
+        },
+        {
+            path: 'fuel-station',
+            element: <ViewFuelStationRegistrtion />
         }
     ]
 };

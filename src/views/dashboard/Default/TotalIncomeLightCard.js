@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 
 // material-ui
 import { useTheme, styled } from '@mui/material/styles';
-import { Avatar, Box, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
+import { Avatar, Box, Grid, List, ListItem, ListItemAvatar, ListItemText, Typography } from '@mui/material';
 
 // project imports
 import MainCard from 'ui-component/cards/MainCard';
@@ -10,6 +10,11 @@ import TotalIncomeCard from 'ui-component/cards/Skeleton/TotalIncomeCard';
 
 // assets
 import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone';
+import { useNavigate } from 'react-router';
+import { useState } from 'react';
+import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
+import { useEffect } from 'react';
+import AuthService from 'services/auth.service';
 
 // styles
 const CardWrapper = styled(MainCard)(({ theme }) => ({
@@ -41,6 +46,31 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
 
 const TotalIncomeLightCard = ({ isLoading }) => {
     const theme = useTheme();
+    const navigate = useNavigate();
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [vehicleOwnerCardVisible, setVehicleOwnerCardVisible] = useState(false);
+
+    const manageFuelRequstDetails = () => {
+        setAnchorEl(null);
+        navigate('/fuel-request', { replace: true });
+    };
+    useEffect(() => {
+        const currentUser = AuthService.getCurrentUser();
+        console.log(currentUser?.roles[0]);
+        if (currentUser?.roles[0] === 'ROLE_CUSTOMER') {
+            setVehicleOwnerCardVisible(true);
+        } else {
+            setVehicleOwnerCardVisible(false);
+        }
+    }, []);
+
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
 
     return (
         <>
@@ -48,43 +78,53 @@ const TotalIncomeLightCard = ({ isLoading }) => {
                 <TotalIncomeCard />
             ) : (
                 <CardWrapper border={false} content={false}>
-                    <Box sx={{ p: 2 }}>
-                        <List sx={{ py: 0 }}>
-                            <ListItem alignItems="center" disableGutters sx={{ py: 0 }}>
-                                <ListItemAvatar>
-                                    <Avatar
-                                        variant="rounded"
-                                        sx={{
-                                            ...theme.typography.commonAvatar,
-                                            ...theme.typography.largeAvatar,
-                                            backgroundColor: theme.palette.warning.light,
-                                            color: theme.palette.warning.dark
-                                        }}
-                                    >
-                                        <StorefrontTwoToneIcon fontSize="inherit" />
-                                    </Avatar>
-                                </ListItemAvatar>
-                                <ListItemText
-                                    sx={{
-                                        py: 0,
-                                        mt: 0.45,
-                                        mb: 0.45
-                                    }}
-                                    primary={<Typography variant="h4">$203k</Typography>}
-                                    secondary={
-                                        <Typography
-                                            variant="subtitle2"
-                                            sx={{
-                                                color: theme.palette.grey[500],
-                                                mt: 0.5
-                                            }}
-                                        >
-                                            Total Income
-                                        </Typography>
-                                    }
-                                />
-                            </ListItem>
-                        </List>
+                    <Box sx={{ p: 2.25 }}>
+                        {vehicleOwnerCardVisible ? (
+                            <Grid container direction="column">
+                                <Grid item>
+                                    <Grid container justifyContent="space-between">
+                                        <Grid item sx={{ mb: 0.75 }}>
+                                            <Typography
+                                                sx={{
+                                                    fontSize: '1rem',
+                                                    fontWeight: 500,
+                                                    color: theme.palette.secondary[200]
+                                                }}
+                                            >
+                                                Fuel Request
+                                            </Typography>
+                                        </Grid>
+                                        <Grid item>
+                                            <Avatar
+                                                variant="rounded"
+                                                sx={{
+                                                    ...theme.typography.commonAvatar,
+                                                    ...theme.typography.largeAvatar,
+                                                    backgroundColor: theme.palette.warning[800],
+                                                    mt: 1
+                                                }}
+                                            >
+                                                <LocalGasStationIcon fontSize="inherit" onClick={manageFuelRequstDetails} />
+                                                {/* <DirectionsCarIcon /> */}
+                                                {/* <img src={EarningIcon} alt="Notification" /> */}
+                                            </Avatar>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                                <Grid item>
+                                    <Grid container>
+                                        <Grid item>
+                                            <Typography sx={{ mr: 1, mt: 1.75, mb: 0.75 }}>
+                                                Each Vehicle Once registered for the Fuel Pass, will be allocated a weekly quota of fuel,
+                                                which will be refreshed every Sunday night and provide fuel within the available balance.
+                                            </Typography>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        ) : (
+                            ''
+                        )}
                     </Box>
                 </CardWrapper>
             )}
