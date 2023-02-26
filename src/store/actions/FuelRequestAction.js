@@ -1,52 +1,66 @@
 import {
-    SAVE_VEHICLE_DATA,
-    CHECK_VEHICLE_CODE_DUPLICATE,
-    GET_ALL_ACTIVE_VEHICLE_DATA,
-    GET_ALL_VEHICLE_DATA,
-    GET_VEHICLE_DETAILS_BY_CODE,
-    GET_VEHICLE_LAST_MODIFIED_DATE_TIME,
-    UPDATE_VEHICLE_DATA,
-    CHECK_VEHICLE_NUMBER_DUPLICATE,
-    CHECK_CHASSIS_NUMBER_DUPLICATE
-} from 'store/constants/VehicleConstant';
+    SAVE_FUEL_REQUEST_DATA,
+    CHECK_FUEL_REQUEST_CODE_DUPLICATE,
+    GET_ALL_ACTIVE_FUEL_REQUEST_DATA,
+    GET_ALL_FUEL_REQUEST_DATA,
+    GET_FUEL_REQUEST_DETAILS_BY_CODE,
+    GET_FUEL_REQUEST_LAST_MODIFIED_DATE_TIME,
+    UPDATE_FUEL_REQUEST_DATA,
+    CHECK_FUEL_REQUEST_NUMBER_DUPLICATE,
+    CHECK_CHASSIS_NUMBER_DUPLICATE,
+    GET_QUOTA_BY_VEHICLE_NUMBER,
+    GET_ALL_FUEL_REQUEST_DATA_BY_USER,
+    GET_WEEK_END_DATE,
+    DELETE_FUEL_REQUEST_DETAILS_BY_ID,
+    ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
+    REJECT_FUEL_REQUEST_DETAILS_BY_ID
+} from 'store/constants/FuelRequestConstant';
 
-export const saveVehicleData = (data) => {
+export const saveFuelRequestData = (data) => {
     console.log('save Data action s called', data);
     return {
-        type: SAVE_VEHICLE_DATA,
+        type: SAVE_FUEL_REQUEST_DATA,
         data
     };
 };
-export const getAllVehicleData = (data) => {
+export const getAllFuelRequestData = (data) => {
     return {
-        type: GET_ALL_VEHICLE_DATA,
+        type: GET_ALL_FUEL_REQUEST_DATA,
         data: data
     };
 };
 
-export const getLatestModifiedDetails = () => {
+export const getAllFuelRequestDataByUser = (id) => {
     return {
-        type: GET_VEHICLE_LAST_MODIFIED_DATE_TIME
-    };
-};
-
-export const getVehicleDetailsByCode = (id) => {
-    return {
-        type: GET_VEHICLE_DETAILS_BY_CODE,
+        type: GET_ALL_FUEL_REQUEST_DATA_BY_USER,
         data: { id }
     };
 };
 
-export const updateVehicleData = (data) => {
+export const getLatestModifiedDetails = (userId) => {
     return {
-        type: UPDATE_VEHICLE_DATA,
+        type: GET_FUEL_REQUEST_LAST_MODIFIED_DATE_TIME,
+        data: { userId }
+    };
+};
+
+export const getFuelRequestDetailsByCode = (id) => {
+    return {
+        type: GET_FUEL_REQUEST_DETAILS_BY_CODE,
+        data: { id }
+    };
+};
+
+export const updateFuelRequestData = (data) => {
+    return {
+        type: UPDATE_FUEL_REQUEST_DATA,
         data
     };
 };
 
-export const checkVehicleNumber = (data) => {
+export const checkFuelRequestNumber = (data) => {
     return {
-        type: CHECK_VEHICLE_NUMBER_DUPLICATE,
+        type: CHECK_FUEL_REQUEST_NUMBER_DUPLICATE,
         data: data
     };
 };
@@ -58,8 +72,45 @@ export const checkChassisNumber = (data) => {
     };
 };
 
-export const getAllActiveVehicleData = () => {
+export const getAllActiveFuelRequestData = () => {
     return {
-        type: GET_ALL_ACTIVE_VEHICLE_DATA
+        type: GET_ALL_ACTIVE_FUEL_REQUEST_DATA
+    };
+};
+
+export const getWeekEndDate = () => {
+    return {
+        type: GET_WEEK_END_DATE
+    };
+};
+
+export const getEligibleQuotaByVehicleNumber = (vehicleNumber) => {
+    return {
+        type: GET_QUOTA_BY_VEHICLE_NUMBER,
+        data: { vehicleNumber }
+    };
+};
+
+export const deleteFuelRequestById = (id) => {
+    console.log('delete action');
+    return {
+        type: DELETE_FUEL_REQUEST_DETAILS_BY_ID,
+        data: { id }
+    };
+};
+
+export const approveFuelRequestById = (id) => {
+    console.log('approve action');
+    return {
+        type: ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
+        data: { id }
+    };
+};
+
+export const rejectFuelRequestById = (id) => {
+    console.log('reject action');
+    return {
+        type: REJECT_FUEL_REQUEST_DETAILS_BY_ID,
+        data: { id }
     };
 };

@@ -14,7 +14,14 @@ import ErrorMsg from 'views/messages/ErrorMsg';
 import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
 import FuelRequest from './FuelRequest';
-// import VehicleDetails from './VehicleDetails';
+import {
+    deleteFuelRequestById,
+    getAllFuelRequestData,
+    getAllFuelRequestDataByUser,
+    getLatestModifiedDetails
+} from 'store/actions/FuelRequestAction';
+import DeleteMsg from 'views/messages/DeleteMsg';
+import AcceptMsg from 'views/messages/AcceptMsg';
 
 function ViewFuelRequst() {
     const currentUser = AuthService.getCurrentUser();
@@ -25,7 +32,10 @@ function ViewFuelRequst() {
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
-
+    const [openAcceptToast, setAcceptHandleToast] = useState(false);
+    const [openDeleteToast, setDeleteHandleToast] = useState(false);
+    const [statusMsg, setStatusMsg] = useState('');
+    const [approveStatusMsg, setApproveStatusMsg] = useState('');
     const columns = [
         {
             title: 'Id',
@@ -35,14 +45,8 @@ function ViewFuelRequst() {
             hidden: true
         },
         {
-            title: 'Vehicle Number',
-            field: 'vehicleNumber',
-            filterPlaceholder: 'filter',
-            align: 'center'
-        },
-        {
-            title: 'Chassis Number',
-            field: 'chassisNumber',
+            title: 'Requested Date',
+            field: 'requestedDate',
             filterPlaceholder: 'filter',
             align: 'center'
         },
@@ -55,18 +59,18 @@ function ViewFuelRequst() {
         },
 
         {
-            title: 'Fuel Type',
-            field: 'fuelType',
+            title: 'Requested Quota(L)',
+            field: 'actualQuata',
             filterPlaceholder: 'filter',
             align: 'center'
-        }
+        },
 
-        // {
-        //     title: 'Location Code',
-        //     field: 'locationCode',
-        //     filterPlaceholder: 'filter',
-        //     align: 'center'
-        // },
+        {
+            title: 'Price (RS.)',
+            field: 'fuelAmount',
+            filterPlaceholder: 'filter',
+            align: 'center'
+        },
         // {
         //     title: 'Max Pax',
         //     field: 'maxPax',
@@ -74,51 +78,119 @@ function ViewFuelRequst() {
         //     align: 'center'
         // },
 
-        // {
-        //     title: 'Status',
-        //     field: 'status',
-        //     filterPlaceholder: 'True || False',
-        //     align: 'center',
-        //     emptyValue: () => <em>null</em>,
-        //     render: (rowData) => (
-        //         <div
-        //             style={{
-        //                 alignItems: 'center',
-        //                 align: 'center',
-        //                 display: 'flex',
-        //                 justifyContent: 'center',
-        //                 alignItems: 'center'
-        //             }}
-        //         >
-        //             {rowData.status === true ? (
-        //                 <FormGroup>
-        //                     <FormControlLabel control={<Switch size="small" />} checked={true} />
-        //                 </FormGroup>
-        //             ) : (
-        //                 <FormGroup>
-        //                     <FormControlLabel control={<Switch size="small" />} checked={false} />
-        //                 </FormGroup>
-        //             )}
-        //         </div>
-        //     )
-        // }
+        {
+            title: 'Approval Status',
+            field: 'approval_state',
+            filterPlaceholder: 'True || False',
+            align: 'center',
+            emptyValue: () => <em>null</em>,
+            render: (rowData) => (
+                <div
+                    style={{
+                        alignItems: 'center',
+                        align: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+                    {rowData.approval_state === true ? (
+                        <FormGroup>
+                            <FormControlLabel control={<Switch size="small" />} checked={true} />
+                        </FormGroup>
+                    ) : (
+                        <FormGroup>
+                            <FormControlLabel control={<Switch size="small" />} checked={false} />
+                        </FormGroup>
+                    )}
+                </div>
+            )
+        },
+
+        {
+            title: 'Reject Status',
+            field: 'reject_state',
+            filterPlaceholder: 'True || False',
+            align: 'center',
+            emptyValue: () => <em>null</em>,
+            render: (rowData) => (
+                <div
+                    style={{
+                        alignItems: 'center',
+                        align: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                >
+                    {rowData.reject_state === true ? (
+                        <FormGroup>
+                            <FormControlLabel control={<Switch color="error" size="small" />} checked={true} />
+                        </FormGroup>
+                    ) : (
+                        <FormGroup>
+                            <FormControlLabel control={<Switch size="small" />} checked={false} />
+                        </FormGroup>
+                    )}
+                </div>
+            )
+        }
     ];
 
     const dispatch = useDispatch();
     const error = useSelector((state) => state.vehicleReducer.errorMsg);
-    const vehicle = useSelector((state) => state.vehicleReducer.vehicle);
-    const vehicleList = useSelector((state) => state.vehicleReducer.vehicleList);
-    // const lastModifiedDate = useSelector((state) => state.activity_supplimentReducer.lastModifiedDateTime);
+    const fuelRequest = useSelector((state) => state.fuelRequestReducer.fuelRequest);
+    const fuelRequestListByUser = useSelector((state) => state.fuelRequestReducer.fuelRequestListByUser);
 
-    // useEffect(() => {
-    //     setLastModifiedTimeDate(lastModifiedDate);
-    // }, [lastModifiedDate]);
+    const fuelRequstList = useSelector((state) => state.fuelRequestReducer.fuelRequstList);
+    const lastModifiedDate = useSelector((state) => state.fuelRequestReducer.lastModifiedDateTime);
+
+    const deleteFuelRequest = useSelector((state) => state.fuelRequestReducer.deleteFuelRequest);
+    const acceptFuelRequest = useSelector((state) => state.fuelRequestReducer.acceptFuelRequest);
+    const rejectFuelRequest = useSelector((state) => state.fuelRequestReducer.rejectFuelRequest);
 
     useEffect(() => {
-        if (vehicleList?.length > 0) {
-            setTableData(vehicleList);
+        if (deleteFuelRequest != null && deleteFuelRequest.errorMessages.length != 0) {
+            setStatusMsg('DELETE');
+            setDeleteHandleToast(true);
         }
-    }, [vehicleList]);
+        // setLastModifiedTimeDate(lastModifiedDate);
+    }, [deleteFuelRequest]);
+
+    useEffect(() => {
+        if (acceptFuelRequest != null && acceptFuelRequest.errorMessages.length != 0) {
+            setApproveStatusMsg('ACCEPT');
+            setAcceptHandleToast(true);
+        }
+        dispatch(getAllFuelRequestData());
+        // setLastModifiedTimeDate(lastModifiedDate);
+    }, [acceptFuelRequest]);
+
+    useEffect(() => {
+        if (rejectFuelRequest != null && rejectFuelRequest.errorMessages.length != 0) {
+            setApproveStatusMsg('REJECT');
+            setAcceptHandleToast(true);
+        }
+        dispatch(getAllFuelRequestData());
+        // setLastModifiedTimeDate(lastModifiedDate);
+    }, [rejectFuelRequest]);
+
+    useEffect(() => {
+        if (fuelRequestListByUser?.length > 0) {
+            console.log(fuelRequestListByUser[0].requestedDate);
+
+            setTableData(fuelRequestListByUser);
+        }
+    }, [fuelRequestListByUser]);
+
+    useEffect(() => {
+        if (currentUser?.roles[0] === 'ROLE_ADMIN') {
+            if (fuelRequstList?.length > 0) {
+                // console.log(fuelRequstList[0].requestedDate);
+                setTableData(fuelRequstList);
+            }
+        }
+    }, [fuelRequstList]);
 
     useEffect(() => {
         if (error != null) {
@@ -127,17 +199,17 @@ function ViewFuelRequst() {
     }, [error]);
 
     useEffect(() => {
-        if (vehicle) {
+        if (fuelRequest) {
             console.log(currentUser.id);
             setHandleToast(true);
-            dispatch(getAllVehicleData(currentUser.id));
+            dispatch(getAllFuelRequestDataByUser(currentUser.id));
         }
-    }, [vehicle]);
+    }, [fuelRequest]);
 
-    useEffect(() => {
-        dispatch(getAllVehicleData(currentUser.id));
-        // dispatch(getActivity_SupplementLatestModifiedDetails());
-    }, []);
+    // useEffect(() => {
+    //     dispatch(getAllFuelRequestDataByUser(currentUser.id));
+    //     // dispatch(getActivity_SupplementLatestModifiedDetails());
+    // }, []);
 
     const handleClickOpen = (type, data) => {
         if (type === 'VIEW_UPDATE') {
@@ -158,7 +230,12 @@ function ViewFuelRequst() {
     };
 
     useEffect(() => {
-        dispatch(getAllVehicleData(currentUser.id));
+        if (currentUser?.roles[0] === 'ROLE_ADMIN') {
+            dispatch(getAllFuelRequestData());
+        } else {
+            dispatch(getAllFuelRequestDataByUser(currentUser.id));
+            dispatch(getLatestModifiedDetails(currentUser.id));
+        }
         // dispatch(getActivity_SupplementLatestModifiedDetails());
     }, []);
 
@@ -169,10 +246,25 @@ function ViewFuelRequst() {
         setOpenErrorToast(false);
     };
 
+    useEffect(() => {
+        setLastModifiedTimeDate(
+            lastModifiedDate === null
+                ? ''
+                : new Date(lastModifiedDate).toLocaleString('en-GB', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: '2-digit',
+                      hour: 'numeric',
+                      minute: 'numeric',
+                      hour12: true
+                  })
+        );
+    }, [lastModifiedDate]);
+
     return (
         <div>
             <MainCard title="Fuel Request">
-                {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
+                <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div>
                 <br />
                 <Grid container spacing={gridSpacing}>
                     <Grid item xs={12}>
@@ -181,18 +273,39 @@ function ViewFuelRequst() {
                                 <MaterialTable
                                     columns={columns}
                                     data={tableData}
+                                    editable={{
+                                        onRowDelete: (oldData) =>
+                                            new Promise((resolve, reject) => {
+                                                alert(oldData.id);
+                                                dispatch(deleteFuelRequestById(oldData.id));
+                                                setTimeout(() => {
+                                                    const dataDelete = [...tableData];
+                                                    const index = oldData.tableData.id;
+                                                    dataDelete.splice(index, 1);
+                                                    setTableData([...dataDelete]);
+
+                                                    resolve();
+                                                }, 1000);
+                                            })
+                                    }}
                                     actions={[
-                                        {
-                                            icon: tableIcons.Add,
-                                            tooltip: 'Add New',
-                                            isFreeAction: true,
-                                            onClick: () => handleClickOpen('INSERT', null)
-                                        },
-                                        // (rowData) => ({
-                                        //     icon: tableIcons.Edit,
-                                        //     tooltip: 'Edit',
-                                        //     onClick: () => handleClickOpen('VIEW_UPDATE', rowData)
-                                        // }),
+                                        currentUser?.roles[0] === 'ROLE_CUSTOMER'
+                                            ? {
+                                                  icon: tableIcons.Add,
+                                                  tooltip: 'Add New',
+                                                  isFreeAction: true,
+                                                  onClick: () => handleClickOpen('INSERT', null)
+                                              }
+                                            : null,
+
+                                        currentUser?.roles[0] === 'ROLE_ADMIN'
+                                            ? (rowData) => ({
+                                                  icon: tableIcons.AddTaskIcon,
+                                                  tooltip: 'Approve / Reject',
+                                                  onClick: () => handleClickOpen('APPROVE', rowData)
+                                              })
+                                            : null,
+
                                         (rowData) => ({
                                             icon: tableIcons.VisibilityIcon,
                                             tooltip: 'View',
@@ -214,6 +327,7 @@ function ViewFuelRequst() {
                                         paginationType: 'stepped',
                                         showFirstLastPageButtons: false,
                                         exportButton: true,
+                                        grouping: true,
                                         exportAllData: true,
                                         exportFileName: 'TableData',
                                         actionsColumnIndex: -1,
@@ -239,8 +353,13 @@ function ViewFuelRequst() {
                                         }
                                     }}
                                 />
-
-                                {open ? <FuelRequest open={open} handleClose={handleClose} vehicleId={fuelRequstId} mode={mode} /> : ''}
+                                {openDeleteToast ? (
+                                    <DeleteMsg openToast={openDeleteToast} handleToast={handleToast} mode={statusMsg} />
+                                ) : null}
+                                {openAcceptToast ? (
+                                    <AcceptMsg openToast={openAcceptToast} handleToast={handleToast} mode={approveStatusMsg} />
+                                ) : null}
+                                {open ? <FuelRequest open={open} handleClose={handleClose} fuelRequestId={fuelRequstId} mode={mode} /> : ''}
                                 {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
                                 {openErrorToast ? (
                                     <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
@@ -256,23 +375,3 @@ function ViewFuelRequst() {
 }
 
 export default ViewFuelRequst;
-
-// import React, { Component } from 'react';
-// import { Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
-// export class ViewFuelRequest extends Component {
-//     render() {
-//         return (
-//             <Map google={this.props.google} zoom={14}>
-//                 <Marker onClick={this.onMarkerClick} name={'Current location'} />
-
-//                 <InfoWindow onClose={this.onInfoWindowClose}>
-//                     <div>{/* <h1>{this.state.selectedPlace.name}</h1> */}</div>
-//                 </InfoWindow>
-//             </Map>
-//         );
-//     }
-// }
-
-// export default GoogleApiWrapper({
-//     apiKey: 'AIzaSyCmlZj4mYFWhw5LZPMRTLZPThcO0qE5HCM'
-// })(ViewFuelRequest);

@@ -17,6 +17,7 @@ import Search from '@mui/icons-material/Search';
 import ViewColumn from '@mui/icons-material/ViewColumn';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CategoryIcon from '@mui/icons-material/Category';
+import AddTaskIcon from '@mui/icons-material/AddTask';
 
 const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -37,7 +38,8 @@ const tableIcons = {
     ThirdStateCheck: forwardRef((props, ref) => <Remove {...props} ref={ref} />),
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
     VisibilityIcon: forwardRef((props, ref) => <VisibilityIcon {...props} ref={ref} />),
-    CategoryIcon: forwardRef((props, ref) => <CategoryIcon {...props} ref={ref} />)
+    CategoryIcon: forwardRef((props, ref) => <CategoryIcon {...props} ref={ref} />),
+    AddTaskIcon: forwardRef((props, ref) => <AddTaskIcon {...props} ref={ref} />)
 };
 
 export default tableIcons;

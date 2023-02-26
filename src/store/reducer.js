@@ -4,13 +4,15 @@ import { combineReducers } from 'redux';
 import customizationReducer from './customizationReducer';
 import { vehicleReducer } from './reducers/VehicleReducer';
 import { fillingStationReducer } from './reducers/FillingStationReducer';
+import { fuelRequestReducer } from './reducers/FuelRequestReducer';
 
 // ==============================|| COMBINE REDUCER ||============================== //
 
 const reducer = combineReducers({
     customization: customizationReducer,
     vehicleReducer,
-    fillingStationReducer
+    fillingStationReducer,
+    fuelRequestReducer
 });
 
 export default reducer;

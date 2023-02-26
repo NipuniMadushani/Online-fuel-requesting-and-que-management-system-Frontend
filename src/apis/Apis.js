@@ -23,3 +23,5 @@ export const getByIdandType = async (data) => axios.post(data.path, { type: data
 export const createWithUpload = async (data) => fetch(data.path, data);
 
 export const updateWithUpload = async (data) => fetch(data.path, data);
+
+export const Delete = async (url) => axios.delete(url);

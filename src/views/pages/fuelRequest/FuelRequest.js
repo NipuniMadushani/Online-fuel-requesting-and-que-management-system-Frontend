@@ -47,37 +47,65 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers';
 import { addDays, addMonths, format, isValid } from 'date-fns';
 import { getAllFillingStationData } from 'store/actions/FillingStationAction';
+import {
+    approveFuelRequestById,
+    getEligibleQuotaByVehicleNumber,
+    getFuelRequestDetailsByCode,
+    getWeekEndDate,
+    rejectFuelRequestById,
+    saveFuelRequestData
+} from 'store/actions/FuelRequestAction';
+import { acceptFuelRequestByIdDataSaga, rejectFuelRequestByIdDataSaga } from 'store/saga/FuelRequstSaga';
+const currentUser = AuthService.getCurrentUser();
+
 const Transition = forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
-function FuelRequest({ open, handleClose, mode, vehicleId }) {
-    const currentUser = AuthService.getCurrentUser();
+function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
+    console.log(currentUser);
     const [selectedDate, handleDateChange] = useState(new Date());
+
+    useEffect(() => {
+        dispatch(getAllVehicleData(currentUser.id));
+        dispatch(getAllFillingStationData());
+        dispatch(getWeekEndDate());
+        // dispatch(getActivity_SupplementLatestModifiedDetails());
+    }, []);
+    const dateofSunday = useSelector((state) => state.fuelRequestReducer.dateofSunday);
     const initialValues = {
         id: '',
-        vehicleNumber: null,
-        scheduleDate: '',
+        customer: currentUser,
+        vehicle: null,
+        actualQuata: '',
+        balanceQuata: '',
+        eligibleQuata: '',
+        requestedDate: '',
         scheduleTime: '',
         vehicleType: '',
         fuelType: '',
-        createdBy: 'admin',
-        userId: currentUser.id
+        fuelAmount: '',
+        pricePerLiter: '',
+        fuelStation: null,
+        lastDate: dateofSunday,
+        activeState: true
     };
     const today = Date.now();
     // alert(today);
 
-    const [formValues, setFormValues] = useState(initialValues);
+    // const [formValues, setFormValues] = useState(initialValues);
     const [loadValues, setLoadValues] = useState(null);
     const dispatch = useDispatch();
     const [vehicleDetails, setVehicleDetails] = useState();
     const [fillingStationDetails, setFillingStationDetails] = useState();
-
-    const vehicleToUpdate = useSelector((state) => state.vehicleReducer.vehicleToUpdate);
+    const [vehicleData, setVehicle] = useState(null);
     const duplicateVehicleNumber = useSelector((state) => state.vehicleReducer.duplicateVehicleNumber);
-
     const duplicateChassisNumber = useSelector((state) => state.vehicleReducer.duplicateChassisNumber);
     const vehicleList = useSelector((state) => state.vehicleReducer.vehicleList);
     const fillingStationList = useSelector((state) => state.fillingStationReducer.fillingStationList);
+    const eligibleQuotaDetails = useSelector((state) => state.fuelRequestReducer.eligibleQuotaDetails);
+    const fuelRequstToUpdate = useSelector((state) => state.fuelRequestReducer.fuelRequstToUpdate);
+    const [alreadyAcceptedOrRejected, setAlreadyAcceptedOrRejected] = useState(false);
+
     yup.addMethod(yup.string, 'checkDuplicateVehicleNumber', function (message) {
         return this.test('checkDuplicateVehicleNumber', message, async function validateValue(value) {
             if (mode === 'INSERT') {
@@ -116,17 +144,29 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
 
     const validationSchema = yup.object().shape({
         // status: yup.boolean(),
-        scheduleDate: yup
+        balanceQuata: yup.number(),
+        fuelStation: yup.object().typeError('Required field'),
+        // actualQuata: yup.number().lessThan([yup.ref('balanceQuata')], 'should be less than balance quata'),
+        // actualQuata: yup.number().when('balanceQuata', {
+        //     is: (balanceQuata) => balanceQuata < actualQuata,
+        //     then: yup.number().required('Cant be ')
+        // }),
+        actualQuata: yup.number().max(yup.ref('balanceQuata'), 'Requested Quota Should be less than Remaining Quota'),
+
+        lastDate: yup.date(),
+
+        requestedDate: yup
             .date()
             .label('startsAt')
             .required('Required')
-            .min(new Date(Date.now() - 86400000), 'Date cannot be in the past')
-        // scheduleDate: yup
+            .min(new Date(Date.now() - 86400000), 'Date cannot be in the past'),
+
+        // requestedDate: yupg Quota
         //     .date()
         //     .default(() => new Date())
         //     .required('Required Field')
 
-        // vehicleNumber: yup.string().required('Required field').checkDuplicateVehicleNumber('Already Exist Vehicle Number'),
+        vehicle: yup.object().typeError('Required field')
         // chassisNumber: yup.string().required('Required field').checkDuplicateChassis('Already Exist Chassis Number'),
         // vehicleType: yup.string().required('Required field'),
         // fuelType: yup.string().required('Required field')
@@ -135,7 +175,22 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
     const handleSubmitForm = (data) => {
         console.log(data);
         if (mode === 'INSERT') {
-            dispatch(saveVehicleData(data));
+            const initialValues = {
+                id: '',
+                userId: currentUser.id,
+                vehicle: vehicleData,
+                actualQuata: data.actualQuata,
+                balanceQuata: data.balanceQuata,
+                eligibleQuata: data.eligibleQuata,
+                requestedDate: data.requestedDate,
+                vehicleType: data.vehicleType,
+                fuelType: data.fuelType,
+                fuelAmount: data.pricePerLiter * data.actualQuata,
+                pricePerLiter: data.pricePerLiter,
+                fuelStation: data.fuelStation,
+                scheduleTime: data.scheduleTime
+            };
+            dispatch(saveFuelRequestData(initialValues));
         } else if (mode === 'VIEW_UPDATE') {
             console.log('yes click');
             dispatch(updateVehicleData(data));
@@ -144,29 +199,95 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
         handleClose();
     };
 
+    const getEligibleQuotaByNumber = (value) => {
+        if (mode === 'INSERT') {
+            dispatch(getEligibleQuotaByVehicleNumber(value));
+        }
+    };
+
+    const approveRequest = (value) => {
+        if (mode === 'APPROVE') {
+            dispatch(approveFuelRequestById(value));
+            handleClose();
+        }
+    };
+
+    const rejectRequest = (value) => {
+        if (mode === 'APPROVE') {
+            dispatch(rejectFuelRequestById(value));
+            handleClose();
+        }
+    };
+
     useEffect(() => {
         setVehicleDetails(vehicleList);
     }, [vehicleList]);
+
+    useEffect(() => {
+        if (mode !== 'INSERT' && fuelRequstToUpdate != null) {
+            const initialValues = {
+                id: fuelRequstToUpdate?.id,
+                // userId: currentUser.id,
+                vehicle: fuelRequstToUpdate.vehicle,
+                actualQuata: fuelRequstToUpdate.actualQuata,
+                balanceQuata: fuelRequstToUpdate?.eligibleQuata - fuelRequstToUpdate?.actualQuata,
+                eligibleQuata: fuelRequstToUpdate.eligibleQuata,
+                requestedDate: fuelRequstToUpdate.requestedDate,
+                vehicleType: fuelRequstToUpdate.vehicleType,
+                fuelType: fuelRequstToUpdate.fuelType,
+                fuelAmount: fuelRequstToUpdate.fuelAmount,
+                pricePerLiter: fuelRequstToUpdate.pricePerLiter,
+                fuelStation: fuelRequstToUpdate.fuelStation,
+                scheduleTime: fuelRequstToUpdate.scheduleTime
+            };
+            setLoadValues(initialValues);
+
+            console.log('appr:' + fuelRequstToUpdate?.approvalState);
+            console.log('reje:' + fuelRequstToUpdate?.rejectState);
+
+            if (fuelRequstToUpdate?.rejectState || fuelRequstToUpdate?.approvalState) {
+                setAlreadyAcceptedOrRejected(true);
+            } else {
+                setAlreadyAcceptedOrRejected(false);
+            }
+        } else {
+            setLoadValues(initialValues);
+        }
+        // setVehicleDetails(vehicleList);
+    }, [fuelRequstToUpdate]);
+
+    useEffect(() => {
+        if (mode != 'INSERT') {
+            dispatch(getFuelRequestDetailsByCode(fuelRequestId));
+        }
+    }, [fuelRequestId]);
 
     useEffect(() => {
         setFillingStationDetails(fillingStationList);
     }, [fillingStationList]);
 
     useEffect(() => {
-        if ((mode === 'VIEW_UPDATE' && vehicleToUpdate != null) || (mode === 'VIEW' && vehicleToUpdate != null)) {
-            console.log(vehicleToUpdate);
-            // if (taxToUpdate.toDate === null) {
-            //     vehicleToUpdate.toDate = '';
-            // }
-            setLoadValues(vehicleToUpdate);
-        }
-    }, [vehicleToUpdate]);
+        if (eligibleQuotaDetails !== null && mode == 'INSERT') {
+            const initialValues = {
+                id: '',
+                // customer: currentUser,
+                vehicle: eligibleQuotaDetails.vehicle,
+                actualQuata: eligibleQuotaDetails.balanceQuata,
+                balanceQuata: eligibleQuotaDetails.balanceQuata,
+                eligibleQuata: eligibleQuotaDetails.eligibleQuata,
+                // requestedDate: data.requestedDate,
+                vehicleType: eligibleQuotaDetails.vehicleType,
+                fuelType: eligibleQuotaDetails.fuelType,
+                fuelAmount: eligibleQuotaDetails.fuelAmount,
+                pricePerLiter: eligibleQuotaDetails.pricePerLiter
 
-    useEffect(() => {
-        dispatch(getAllVehicleData(currentUser.id));
-        dispatch(getAllFillingStationData());
-        // dispatch(getActivity_SupplementLatestModifiedDetails());
-    }, []);
+                // fuelStation: data.fuelStation
+            };
+            setLoadValues(initialValues);
+        }
+
+        // }
+    }, [eligibleQuotaDetails]);
 
     return (
         <div>
@@ -183,7 +304,8 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                 <DialogTitle>
                     <Box display="flex" className="dialog-title">
                         <Box flexGrow={1}>
-                            {mode === 'INSERT' ? 'Add' : ''} {mode === 'VIEW_UPDATE' ? 'Update' : ''} {mode === 'VIEW' ? 'View  ' : ''}
+                            {mode === 'INSERT' ? 'Add' : ''} {mode === 'DELETE' ? 'Delete' : ''} {mode === 'VIEW' ? 'View  ' : ''}
+                            {mode === 'APPROVE' ? 'Approve/Reject  ' : ''}
                             Fuel Request Token
                         </Box>
                         <Box>
@@ -212,18 +334,18 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                             <Grid container rowSpacing={2} style={{ marginTop: '2px' }}>
                                                 <Grid item xs={6}>
                                                     <Autocomplete
-                                                        // value={values.locationCode}
-                                                        name="vehicleNumber"
+                                                        value={values.vehicle}
+                                                        name="vehicle"
                                                         onChange={(_, value) => {
-                                                            setFieldValue(`vehicleNumber`, value);
-                                                            
+                                                            getEligibleQuotaByNumber(value.vehicleNumber);
+                                                            console.log(value);
+                                                            setFieldValue(`vehicle`, value);
+                                                            setVehicle(value);
                                                         }}
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                         options={vehicleDetails}
                                                         getOptionLabel={(option) => `${option.vehicleNumber}-${option.vehicleType}`}
-                                                        // isOptionEqualToValue={(option, value) =>
-                                                        //     option.location_id === value.location_id
-                                                        // }
+                                                        // isOptionEqualToValue={(option, value) => option.id === value.id}
                                                         renderInput={(params) => (
                                                             <TextField
                                                                 {...params}
@@ -239,10 +361,12 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                                         height: 40
                                                                     }
                                                                 }}
-                                                                disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                                disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                                 variant="outlined"
-                                                                name="locationCode"
+                                                                name="vehicle"
                                                                 onBlur={handleBlur}
+                                                                error={Boolean(touched.vehicle && errors.vehicle)}
+                                                                helperText={touched.vehicle && errors.vehicle ? errors.vehicle : ''}
                                                             />
                                                         )}
                                                     />
@@ -251,17 +375,15 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                     <Grid container></Grid>
                                                     <Grid></Grid>
                                                     <Autocomplete
-                                                        // value={values.locationCode}
-                                                        name="fillingStation"
+                                                        value={values.fuelStation}
+                                                        name="fuelStation"
                                                         onChange={(_, value) => {
-                                                            setFieldValue(`fillingStation`, value);
+                                                            setFieldValue(`fuelStation`, value);
                                                         }}
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                         options={fillingStationDetails}
-                                                        getOptionLabel={(option) => `${option.name}-${option.location}`}
-                                                        // isOptionEqualToValue={(option, value) =>
-                                                        //     option.location_id === value.location_id
-                                                        // }
+                                                        getOptionLabel={(option) => `${option.displayName}-${option.location}`}
+                                                        // isOptionEqualToValue={(option, value) => option.id === value.id}
                                                         renderInput={(params) => (
                                                             <TextField
                                                                 {...params}
@@ -277,19 +399,55 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                                         height: 40
                                                                     }
                                                                 }}
-                                                                disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                                disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                                 variant="outlined"
-                                                                name="fillingStation"
+                                                                name="fuelStation"
                                                                 onBlur={handleBlur}
+                                                                error={Boolean(touched.fuelStation && errors.fuelStation)}
+                                                                helperText={
+                                                                    touched.fuelStation && errors.fuelStation ? errors.fuelStation : ''
+                                                                }
                                                             />
                                                         )}
                                                     />
                                                 </Grid>
+                                                {mode === 'INSERT' ? (
+                                                    <Grid item xs={6}>
+                                                        <TextField
+                                                            disabled
+                                                            // label={vehicleNumber}
+                                                            label="Fuel Type"
+                                                            InputLabelProps={{
+                                                                shrink: true
+                                                            }}
+                                                            sx={{
+                                                                width: { xs: 150, sm: 250 },
+                                                                '& .MuiInputBase-root': {
+                                                                    height: 40
+                                                                }
+                                                            }}
+                                                            type="text"
+                                                            variant="outlined"
+                                                            // placeholder="ABC 1234"
+                                                            id="fuelType"
+                                                            name="fuelType"
+                                                            onChange={handleChange}
+                                                            onBlur={handleBlur}
+                                                            value={values.fuelType}
+                                                            // error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
+                                                            // helperText={
+                                                            //     touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
+                                                            // }
+                                                        />
+                                                    </Grid>
+                                                ) : (
+                                                    ''
+                                                )}
                                                 <Grid item xs={6}>
                                                     <TextField
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                        disabled
                                                         // label={vehicleNumber}
-                                                        label="Eligible Fuel Quota"
+                                                        label="Eligible Fuel Quota(L)"
                                                         InputLabelProps={{
                                                             shrink: true
                                                         }}
@@ -302,22 +460,22 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                         type="text"
                                                         variant="outlined"
                                                         // placeholder="ABC 1234"
-                                                        id="vehicleNumber"
-                                                        name="vehicleNumber"
+                                                        id="eligibleQuata"
+                                                        name="eligibleQuata"
                                                         onChange={handleChange}
                                                         onBlur={handleBlur}
-                                                        value={values.vehicleNumber}
-                                                        error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
-                                                        helperText={
-                                                            touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
-                                                        }
+                                                        value={values.eligibleQuata}
+                                                        // error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
+                                                        // helperText={
+                                                        //     touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
+                                                        // }
                                                     />
                                                 </Grid>
                                                 <Grid item xs={6}>
                                                     <TextField
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                        disabled
                                                         // label={vehicleNumber}
-                                                        label="Remaining Quota"
+                                                        label="Remaining Quota(L)"
                                                         InputLabelProps={{
                                                             shrink: true
                                                         }}
@@ -330,22 +488,20 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                         type="text"
                                                         variant="outlined"
                                                         // placeholder="ABC 1234"
-                                                        id="vehicleNumber"
-                                                        name="vehicleNumber"
+                                                        id="balanceQuata"
+                                                        name="balanceQuata"
                                                         onChange={handleChange}
                                                         onBlur={handleBlur}
-                                                        value={values.vehicleNumber}
-                                                        error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
-                                                        helperText={
-                                                            touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
-                                                        }
+                                                        value={values.balanceQuata}
+                                                        error={Boolean(touched.balanceQuata && errors.balanceQuata)}
+                                                        helperText={touched.balanceQuata && errors.balanceQuata ? errors.balanceQuata : ''}
                                                     />
                                                 </Grid>
                                                 <Grid item xs={6}>
                                                     <TextField
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
+                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                         // label={vehicleNumber}
-                                                        label="Request Amount Of Quota"
+                                                        label="Request Amount Of Quota (L)"
                                                         InputLabelProps={{
                                                             shrink: true
                                                         }}
@@ -358,45 +514,80 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                         type="text"
                                                         variant="outlined"
                                                         // placeholder="ABC 1234"
-                                                        id="vehicleNumber"
-                                                        name="vehicleNumber"
+                                                        id="actualQuata"
+                                                        name="actualQuata"
                                                         onChange={handleChange}
                                                         onBlur={handleBlur}
-                                                        value={values.vehicleNumber}
-                                                        error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
-                                                        helperText={
-                                                            touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
-                                                        }
+                                                        value={values.actualQuata}
+                                                        error={Boolean(touched.actualQuata && errors.actualQuata)}
+                                                        helperText={touched.actualQuata && errors.actualQuata ? errors.actualQuata : ''}
                                                     />
                                                 </Grid>
-                                                <Grid item xs={6}>
-                                                    <TextField
-                                                        disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
-                                                        // label={vehicleNumber}
-                                                        label="Amount"
-                                                        InputLabelProps={{
-                                                            shrink: true
-                                                        }}
-                                                        sx={{
-                                                            width: { xs: 150, sm: 250 },
-                                                            '& .MuiInputBase-root': {
-                                                                height: 40
-                                                            }
-                                                        }}
-                                                        type="text"
-                                                        variant="outlined"
-                                                        // placeholder="ABC 1234"
-                                                        id="vehicleNumber"
-                                                        name="vehicleNumber"
-                                                        onChange={handleChange}
-                                                        onBlur={handleBlur}
-                                                        value={values.vehicleNumber}
-                                                        error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
-                                                        helperText={
-                                                            touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
-                                                        }
-                                                    />
-                                                </Grid>
+                                                {mode === 'INSERT' ? (
+                                                    <Grid item xs={6}>
+                                                        <TextField
+                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
+                                                            // label={vehicleNumber}
+                                                            label="Price For Liter(RS.)"
+                                                            InputLabelProps={{
+                                                                shrink: true
+                                                            }}
+                                                            sx={{
+                                                                width: { xs: 150, sm: 250 },
+                                                                '& .MuiInputBase-root': {
+                                                                    height: 40
+                                                                }
+                                                            }}
+                                                            type="text"
+                                                            variant="outlined"
+                                                            // placeholder="ABC 1234"
+                                                            id="pricePerLiter"
+                                                            name="pricePerLiter"
+                                                            onChange={handleChange}
+                                                            onBlur={handleBlur}
+                                                            value={values.pricePerLiter}
+                                                            // error={Boolean(touched.pricePerLite && errors.pricePerLite)}
+                                                            // helperText={
+                                                            //     touched.pricePerLite && errors.pricePerLite ? errors.pricePerLite : ''
+                                                            // }
+                                                        />
+                                                    </Grid>
+                                                ) : (
+                                                    ''
+                                                )}
+                                                {mode === 'INSERT' ? (
+                                                    <Grid item xs={6}>
+                                                        {/* {values.pricePerLiter ? values.pricePerLiter * values.actualQuata : 0} */}
+                                                        <TextField
+                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
+                                                            // label={vehicleNumber}
+                                                            label="Amount (RS.) "
+                                                            InputLabelProps={{
+                                                                shrink: true
+                                                            }}
+                                                            sx={{
+                                                                width: { xs: 150, sm: 250 },
+                                                                '& .MuiInputBase-root': {
+                                                                    height: 40
+                                                                }
+                                                            }}
+                                                            type="text"
+                                                            variant="outlined"
+                                                            // placeholder="ABC 1234"
+                                                            id="fuelAmount"
+                                                            name="fuelAmount"
+                                                            onChange={handleChange}
+                                                            onBlur={handleBlur}
+                                                            value={values.pricePerLiter * values.actualQuata}
+                                                            // error={Boolean(touched.vehicleNumber && errors.vehicleNumber)}
+                                                            // helperText={
+                                                            //     touched.vehicleNumber && errors.vehicleNumber ? errors.vehicleNumber : ''
+                                                            // }
+                                                        />
+                                                    </Grid>
+                                                ) : (
+                                                    ''
+                                                )}
                                                 <Grid item xs={6}>
                                                     <LocalizationProvider
                                                         dateAdapter={AdapterDayjs}
@@ -404,13 +595,17 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                     >
                                                         <DatePicker
                                                             onChange={(value) => {
-                                                                setFieldValue(`scheduleDate`, value);
+                                                                setFieldValue(`requestedDate`, value);
+                                                                console.log('select date:' + value);
                                                             }}
                                                             label="Schedule Date"
                                                             InputLabelProps={{
                                                                 shrink: true
                                                             }}
+                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                             minDate={new Date()}
+                                                            maxDate={dateofSunday}
+                                                            name="requestedDate"
                                                             // minDate={addDays(today, 21)}
                                                             // maxDate={addMonths(addDays(today, 21), 6)}
                                                             // disabled={
@@ -418,7 +613,7 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                             //     mode == 'VIEW'
                                                             // // }
                                                             inputFormat="DD/MM/YYYY"
-                                                            value={values.scheduleDate}
+                                                            value={values.requestedDate}
                                                             renderInput={(params) => (
                                                                 <TextField
                                                                     {...params}
@@ -431,59 +626,14 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                                         }
                                                                     }}
                                                                     variant="outlined"
-                                                                    name="scheduleDate"
+                                                                    name="requestedDate"
                                                                     onBlur={handleBlur}
-                                                                    error={Boolean(touched.scheduleDate && errors.scheduleDate)}
+                                                                    error={Boolean(touched.requestedDate && errors.requestedDate)}
                                                                     helperText={
-                                                                        touched.scheduleDate && errors.scheduleDate
-                                                                            ? errors.scheduleDate
+                                                                        touched.requestedDate && errors.requestedDate
+                                                                            ? errors.requestedDate
                                                                             : ''
                                                                     }
-                                                                    // error={Boolean(
-                                                                    //     touched.guideClassDetails &&
-                                                                    //         touched
-                                                                    //             .guideClassDetails[
-                                                                    //             idx
-                                                                    //         ] &&
-                                                                    //         touched
-                                                                    //             .guideClassDetails[
-                                                                    //             idx
-                                                                    //         ].fromDate &&
-                                                                    //         errors.guideClassDetails &&
-                                                                    //         errors
-                                                                    //             .guideClassDetails[
-                                                                    //             idx
-                                                                    //         ] &&
-                                                                    //         errors
-                                                                    //             .guideClassDetails[
-                                                                    //             idx
-                                                                    //         ].fromDate
-                                                                    // )}
-                                                                    // helperText={
-                                                                    //     touched.guideClassDetails &&
-                                                                    //     touched
-                                                                    //         .guideClassDetails[
-                                                                    //         idx
-                                                                    //     ] &&
-                                                                    //     touched
-                                                                    //         .guideClassDetails[
-                                                                    //         idx
-                                                                    //     ].fromDate &&
-                                                                    //     errors.guideClassDetails &&
-                                                                    //     errors
-                                                                    //         .guideClassDetails[
-                                                                    //         idx
-                                                                    //     ] &&
-                                                                    //     errors
-                                                                    //         .guideClassDetails[
-                                                                    //         idx
-                                                                    //     ].fromDate
-                                                                    //         ? errors
-                                                                    //               .guideClassDetails[
-                                                                    //               idx
-                                                                    //           ].fromDate
-                                                                    //         : ''
-                                                                    // }
                                                                 />
                                                             )}
                                                         />
@@ -503,6 +653,8 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                             InputLabelProps={{
                                                                 shrink: true
                                                             }}
+                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
+                                                            M
                                                             // disabled={
                                                             //     mode == 'VIEW_UPDATE' ||
                                                             //     mode == 'VIEW'
@@ -573,6 +725,96 @@ function FuelRequest({ open, handleClose, mode, vehicleId }) {
                                                         />
                                                     </LocalizationProvider>
                                                 </Grid>
+
+                                                <Grid item xs={6}>
+                                                    <LocalizationProvider
+                                                        dateAdapter={AdapterDayjs}
+                                                        // adapterLocale={locale}
+                                                    >
+                                                        <DatePicker
+                                                            onChange={(value) => {
+                                                                setFieldValue(`requestedDate`, value);
+                                                                console.log('select date:' + value);
+                                                            }}
+                                                            label="Last Date For This Week"
+                                                            InputLabelProps={{
+                                                                shrink: true
+                                                            }}
+                                                            // name="lastDate"
+                                                            minDate={new Date()}
+                                                            // maxDate={dateofSunday}
+                                                            // minDate={addDays(today, 21)}
+                                                            // maxDate={addMonths(addDays(today, 21), 6)}
+                                                            disabled
+                                                            inputFormat="DD/MM/YYYY"
+                                                            value={dateofSunday}
+                                                            // value={dateofSunday}
+                                                            renderInput={(params) => (
+                                                                <TextField
+                                                                    {...params}
+                                                                    sx={{
+                                                                        width: {
+                                                                            sm: 200
+                                                                        },
+                                                                        '& .MuiInputBase-root': {
+                                                                            height: 40
+                                                                        }
+                                                                    }}
+                                                                    variant="outlined"
+                                                                    // name="lastDate"
+                                                                    onBlur={handleBlur}
+                                                                    // error={Boolean(touched.lastDate && errors.lastDate)}
+                                                                    // helperText={touched.lastDate && errors.lastDate ? errors.lastDate : ''}
+                                                                />
+                                                            )}
+                                                        />
+                                                    </LocalizationProvider>
+                                                </Grid>
+                                                {mode === 'APPROVE' && currentUser?.roles[0] === 'ROLE_ADMIN' ? (
+                                                    <Grid item xs={12}>
+                                                        <Button
+                                                            variant="contained"
+                                                            type="button"
+                                                            disabled={alreadyAcceptedOrRejected}
+                                                            style={{
+                                                                // backgroundColor: '#B22222',
+                                                                marginLeft: '10px'
+                                                            }}
+                                                            onClick={(e) => approveRequest(values.id)}
+                                                        >
+                                                            APPROVE
+                                                        </Button>
+
+                                                        <Button
+                                                            color="error"
+                                                            variant="contained"
+                                                            type="button"
+                                                            disabled={alreadyAcceptedOrRejected}
+                                                            style={{
+                                                                // backgroundColor: '#B22222',
+                                                                marginLeft: '10px'
+                                                            }}
+                                                            onClick={(e) => rejectRequest(values.id)}
+                                                            // onClick={(e) => resetForm()}
+                                                        >
+                                                            REJECT
+                                                        </Button>
+                                                        {/* <FormControl>
+                                                            <FormLabel id="demo-controlled-radio-buttons-group">Approve/ Reject</FormLabel>
+                                                            <RadioGroup
+                                                                aria-labelledby="demo-controlled-radio-buttons-group"
+                                                                name="fuelType"
+                                                                value={values.fuelType}
+                                                                onChange={handleChange}
+                                                            >
+                                                                <FormControlLabel value="approve" control={<Radio />} label="Approve" />
+                                                                <FormControlLabel value="reject" control={<Radio />} label="Reject" />
+                                                            </RadioGroup>
+                                                        </FormControl> */}
+                                                    </Grid>
+                                                ) : (
+                                                    ''
+                                                )}
 
                                                 {/* <Grid item xs={6}>
                                                     <FormControl>
