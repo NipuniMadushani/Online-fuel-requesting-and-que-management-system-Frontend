@@ -57,6 +57,7 @@ const Dashboard = () => {
 
     const [weekDays, setWeekDays] = useState([]);
     const [acceptedQuota, setAcceptedQuota] = useState([]);
+    const [fillingSttaionCount, setFillingStationCount] = useState(null);
 
     useEffect(() => {
         const sSubject = [];
@@ -99,6 +100,20 @@ const Dashboard = () => {
 
         if (currentUser?.roles[0] === 'ROLE_ADMIN') {
             setAdminCardVisible(true);
+            const getRegisteredVehicleCount = async () => {
+                const reqData = await fetch('http://localhost:8090/api/auth/v1/Vehicle/allRegisteredVehiclesCount'); // console.log(await reqData.json());                 const vehicleCount = await reqData.json();
+                const vehicleCount = await reqData.json();
+                setVehicleCount(vehicleCount);
+            };
+            getRegisteredVehicleCount();
+
+            const getFillingStationCount = async () => {
+                const reqData = await fetch('http://localhost:8090/api/auth/v1/fuel-station/allRegisteredFuelStationCount');
+                // console.log(await reqData.json());
+                const vehicleCount = await reqData.json();
+                setFillingStationCount(vehicleCount);
+            };
+            getFillingStationCount();
         } else {
             setAdminCardVisible(false);
         }
@@ -299,7 +314,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={4} sm={6}>
                             <SideIconCard
                                 iconPrimary={LocalGasStationIcon}
-                                primary="3,619"
+                                primary={fillingSttaionCount}
                                 secondary="Registered"
                                 secondarySub="Fuel Stations"
                                 color={theme.palette.secondary.main}
