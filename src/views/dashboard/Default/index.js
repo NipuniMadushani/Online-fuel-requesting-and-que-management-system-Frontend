@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
-
+import { useTheme } from '@mui/material/styles';
 // material-ui
-import { FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
+import { Drawer, FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
 
 // project imports
 import EarningCard from './EarningCard';
 import PopularCard from './PopularCard';
 import TotalOrderLineChartCard from './TotalOrderLineChartCard';
-import TotalIncomeDarkCard from './TotalIncomeDarkCard';
 import TotalIncomeLightCard from './TotalIncomeLightCard';
 import TotalGrowthBarChart from './TotalGrowthBarChart';
 import AuthService from 'services/auth.service';
 import { useDispatch } from 'react-redux';
 import { getFillingStationDetailsManagerWise } from 'store/actions/FillingStationAction';
 import MainCard from 'ui-component/cards/MainCard';
-
 import MaterialTable from 'material-table';
 
 import tableIcons from 'utils/MaterialTableIcons';
@@ -22,7 +20,18 @@ import { gridSpacing } from 'store/constant';
 import { useSelector } from 'react-redux';
 import FuelStation from 'views/pages/fuelStation/FuelStation';
 import SuccessMsg from 'views/messages/SuccessMsg';
-import { Chart } from 'react-google-charts';
+import SideIconCard from 'ui-component/cards/Skeleton/SideIconCard';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import LocalGasStationIcon from '@mui/icons-material/LocalGasStation';
+import FormatListNumberedRtlIcon from '@mui/icons-material/FormatListNumberedRtl';
+const currentUser = AuthService.getCurrentUser();
+
+//pie chart
+import Chart from 'react-apexcharts';
+import ProjectTaskCard from 'ui-component/cards/Skeleton/ProjectTaskCard';
+import RegisteredVehiclesCard from './RegisteredVehiclesCard';
+import RegisteredDailyQueueCard from './RegisteredDailyQueueCard';
+import RemainingDieselCard from './RemainingDieselCard';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -37,6 +46,77 @@ const Dashboard = () => {
     const [openToast, setHandleToast] = useState(false);
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const fillingStation = useSelector((state) => state.fillingStationReducer.fillingStation);
+    const [vehicleOwnerCardVisible, setVehicleOwnerCardVisible] = useState(false);
+    const [adminCardVisible, setAdminCardVisible] = useState(false);
+    const [managerCardVisible, setManagerCardVisible] = useState(false);
+    const theme = useTheme();
+    const [vehicleCount, setVehicleCount] = useState(null);
+
+    const [stdudentSubject, setStudentsubject] = useState([]);
+    const [studentMarks, setStudentMarks] = useState([]);
+
+    const [weekDays, setWeekDays] = useState([]);
+    const [acceptedQuota, setAcceptedQuota] = useState([]);
+
+    useEffect(() => {
+        const sSubject = [];
+        const sMarks = [];
+        const getStudentdata = async () => {
+            const reqData = await fetch('http://localhost:8090/api/auth/v1/fuelrequest/allIncome');
+            const resData = await reqData.json();
+            for (let i = 0; i < resData.length; i++) {
+                sSubject.push(resData[i][0]);
+                sMarks.push(parseInt(resData[i][1]));
+            }
+            setStudentsubject(sSubject);
+            setStudentMarks(sMarks);
+        };
+        getStudentdata();
+
+        const dates = [];
+        const quota = [];
+        const getQuotadata = async () => {
+            const reqData = await fetch('http://localhost:8090/api/auth/v1/fuelrequest/allTokenRequest');
+            const resData = await reqData.json();
+            for (let i = 0; i < resData.length; i++) {
+                dates.push(resData[i][0]);
+                quota.push(parseInt(resData[i][1]));
+            }
+            setWeekDays(dates);
+            setAcceptedQuota(quota);
+        };
+        getQuotadata();
+    }, []);
+
+    useEffect(() => {
+        const currentUser = AuthService.getCurrentUser();
+        console.log(currentUser?.roles[0]);
+        if (currentUser?.roles[0] === 'ROLE_CUSTOMER') {
+            setVehicleOwnerCardVisible(true);
+        } else {
+            setVehicleOwnerCardVisible(false);
+        }
+
+        if (currentUser?.roles[0] === 'ROLE_ADMIN') {
+            setAdminCardVisible(true);
+        } else {
+            setAdminCardVisible(false);
+        }
+
+        // if (currentUser?.roles[0] === 'ROLE_FUEL_STATION') {
+        //     setManagerCardVisible(true);
+        // } else {
+        //     setManagerCardVisible(false);
+        // }
+
+        if (currentUser?.roles[0] === 'ROLE_FUEL_STATION') {
+            dispatch(getFillingStationDetailsManagerWise(currentUser.username));
+            // dispatch(getAllFillingStationData());
+            setFillingDetailDetailsShow(true);
+        } else {
+            setFillingDetailDetailsShow(false);
+        }
+    }, []);
 
     const columns = [
         {
@@ -124,30 +204,9 @@ const Dashboard = () => {
     // const fillingStationList = useSelector((state) => state.fillingStationReducer.fillingStationList);
 
     useEffect(() => {
-        console.log(fillingStationDetails);
-        setHandleToast(true);
-        // if (fillingStationDetails?.length > 0) {
+        // setHandleToast(true);
         setTableData(fillingStationDetails);
-        // }
     }, [fillingStationDetails]);
-    // useEffect(() => {
-    //     if (fillingStationList?.length > 0) {
-    //         setTableData(fillingStationList);
-    //     }
-    // }, [fillingStationList]);
-
-    useEffect(() => {
-        setLoading(false);
-        const currentUser = AuthService.getCurrentUser();
-        console.log(currentUser?.roles[0]);
-        if (currentUser?.roles[0] === 'ROLE_FUEL_STATION') {
-            dispatch(getFillingStationDetailsManagerWise(currentUser.username));
-            // dispatch(getAllFillingStationData());
-            setFillingDetailDetailsShow(true);
-        } else {
-            setFillingDetailDetailsShow(false);
-        }
-    }, []);
 
     const handleClickOpen = (type, data) => {
         if (type === 'VIEW_UPDATE') {
@@ -162,6 +221,7 @@ const Dashboard = () => {
         }
         setOpen(true);
     };
+
     const handleClose = () => {
         setOpen(false);
     };
@@ -185,16 +245,6 @@ const Dashboard = () => {
         // data.app fillingStation;
     }, [fillingStation]);
 
-    // useEffect(() => {
-    //     if (fillingStation) {
-    //         // console.log(currentUser.id);
-    //         // setManagerEmail(fillingStation.managerEmail);
-    //         setHandleToast(true);
-    //         dispatch(getFillingStationDetailsManagerWise(currentUser.username));
-    //         // dispatch(getAllFillingStationData());
-    //     }
-    // }, [fillingStation]);
-
     const handleToast = () => {
         setHandleToast(false);
     };
@@ -202,38 +252,143 @@ const Dashboard = () => {
         setOpenErrorToast(false);
     };
 
-    // const data = [
-    //     ['Task', 'Hours per Day'],
-    //     ['Work', 11],
-    //     ['Eat', 2],
-    //     ['Commute', 2],
-    //     ['Watch TV', 2],
-    //     ['Sleep', 7]
-    // ];
-
-    const options = {
-        title: 'My Daily Activities',
-        is3D: true
-    };
     return (
         <Grid container spacing={gridSpacing}>
             <Grid item xs={12}>
+                <br />
+
+                {vehicleOwnerCardVisible ? (
+                    <Grid container spacing={gridSpacing}>
+                        <Grid item lg={4} md={6} sm={6} xs={12}>
+                            <EarningCard />
+                        </Grid>
+
+                        <Grid item lg={4} md={6} sm={6} xs={12}>
+                            <TotalIncomeLightCard />
+                        </Grid>
+                        <Grid item lg={4} md={6} sm={6} xs={12}>
+                            <TotalOrderLineChartCard />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <ProjectTaskCard />
+                        </Grid>
+                    </Grid>
+                ) : (
+                    ''
+                )}
+
+                {/* </Grid> */}
+                <br />
                 <Grid container spacing={gridSpacing}>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
-                        <EarningCard isLoading={isLoading} />
+                    {adminCardVisible ? (
+                        <Grid item xs={12} lg={4} sm={6}>
+                            <SideIconCard
+                                iconPrimary={LocalShippingIcon}
+                                primary={vehicleCount}
+                                secondary="Registered"
+                                secondarySub="Vehicles"
+                                color={theme.palette.error.main}
+                            />
+                        </Grid>
+                    ) : (
+                        ''
+                    )}
+
+                    {adminCardVisible ? (
+                        <Grid item xs={12} lg={4} sm={6}>
+                            <SideIconCard
+                                iconPrimary={LocalGasStationIcon}
+                                primary="3,619"
+                                secondary="Registered"
+                                secondarySub="Fuel Stations"
+                                color={theme.palette.secondary.main}
+                            />
+                        </Grid>
+                    ) : (
+                        ''
+                    )}
+
+                    {adminCardVisible ? (
+                        <Grid item xs={12} lg={4} sm={6}>
+                            <SideIconCard
+                                iconPrimary={FormatListNumberedRtlIcon}
+                                primary="3,619"
+                                secondary="Active"
+                                secondarySub="Queue"
+                                color={theme.palette.warning.dark}
+                            />
+                        </Grid>
+                    ) : (
+                        ''
+                    )}
+                    <Grid item>
+                        {adminCardVisible ? (
+                            <MainCard title="Daily FuelIn Total Income (RS.)">
+                                <Chart
+                                    type="pie"
+                                    width={400}
+                                    height={400}
+                                    series={studentMarks}
+                                    options={{
+                                        // title: {
+                                        //     text: 'Weekly Total Income'
+                                        // },
+                                        noData: { text: 'Empty Data' },
+                                        // colors:["#f90000","#f0f"],
+                                        labels: stdudentSubject
+                                    }}
+                                ></Chart>
+                            </MainCard>
+                        ) : (
+                            ''
+                        )}
                     </Grid>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
-                        <TotalIncomeLightCard isLoading={isLoading} />
-                    </Grid>
-                    <Grid item lg={4} md={6} sm={6} xs={12}>
-                        <TotalOrderLineChartCard isLoading={isLoading} />
+
+                    <Grid item>
+                        {adminCardVisible ? (
+                            <MainCard title="Weekly Accepted Token Daily Wise">
+                                <Chart
+                                    type="pie"
+                                    width={400}
+                                    height={400}
+                                    series={acceptedQuota}
+                                    options={{
+                                        // title: {
+                                        //     text: 'Weekly Total Income'
+                                        // },
+                                        noData: { text: 'Empty Data' },
+                                        // colors:["#f90000","#f0f"],
+                                        labels: weekDays
+                                    }}
+                                ></Chart>
+                            </MainCard>
+                        ) : (
+                            ''
+                        )}
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={gridSpacing}>
-                    <Chart chartType="PieChart" data={data} options={options} width={'100%'} height={'400px'} />
-                </Grid>
+                <br />
+                <br />
+                {fillingDetailDetailsShow ? (
+                    <Grid container spacing={gridSpacing}>
+                        <Grid item xs={12} lg={4} md={12}>
+                            <RegisteredVehiclesCard />
+                        </Grid>
 
+                        <Grid item xs={12} lg={4} md={12}>
+                            <RegisteredDailyQueueCard />
+                        </Grid>
+
+                        <Grid item xs={12} lg={4} md={12}>
+                            <RemainingDieselCard />
+                        </Grid>
+                    </Grid>
+                ) : (
+                    ''
+                )}
+                <br />
                 {fillingDetailDetailsShow ? (
                     <MainCard title="Fuel Station Details">
                         {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
@@ -319,29 +474,7 @@ const Dashboard = () => {
                             </Grid>
                         </Grid>
                     </MainCard>
-                ) : (
-                    <Grid item xs={12}>
-                        <Grid container spacing={gridSpacing}>
-                            <Grid item xs={12} md={8}>
-                                <TotalGrowthBarChart isLoading={isLoading} />
-                            </Grid>
-                            <Grid item xs={12} md={4}>
-                                <PopularCard isLoading={isLoading} />
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                )}
-
-                {/* <Grid item xs={12}>
-                <Grid container spacing={gridSpacing}>
-                    <Grid item xs={12} md={8}>
-                        <TotalGrowthBarChart isLoading={isLoading} />
-                    </Grid>
-                    <Grid item xs={12} md={4}>
-                        <PopularCard isLoading={isLoading} />
-                    </Grid>
-                </Grid>
-            </Grid> */}
+                ) : null}
             </Grid>
         </Grid>
     );

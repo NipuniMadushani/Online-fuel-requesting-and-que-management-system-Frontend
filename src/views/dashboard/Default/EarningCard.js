@@ -98,51 +98,51 @@ const EarningCard = ({ isLoading }) => {
 
                 <CardWrapper border={false} content={false}>
                     <Box sx={{ p: 2.25 }}>
-                        {vehicleOwnerCardVisible ? (
-                            <Grid container direction="column">
-                                <Grid item>
-                                    <Grid container justifyContent="space-between">
-                                        <Grid item sx={{ mb: 1.25 }}>
-                                            <Typography
-                                                sx={{
-                                                    fontSize: '1rem',
-                                                    fontWeight: 500,
-                                                    color: theme.palette.secondary[200]
-                                                }}
-                                            >
-                                                Vehicle Details
-                                            </Typography>
-                                        </Grid>
-                                        <Grid item>
-                                            <Avatar
-                                                variant="rounded"
-                                                sx={{
-                                                    ...theme.typography.commonAvatar,
-                                                    ...theme.typography.largeAvatar,
-                                                    backgroundColor: theme.palette.warning[800],
-                                                    mt: 1
-                                                }}
-                                            >
-                                                <DirectionsCarIcon fontSize="inherit" onClick={manageVehicleDetails} />
-                                                {/* <img src={EarningIcon} alt="Notification" /> */}
-                                            </Avatar>
-                                        </Grid>
+                        {/* {vehicleOwnerCardVisible ? ( */}
+                        <Grid container direction="column">
+                            <Grid item>
+                                <Grid container justifyContent="space-between">
+                                    <Grid item sx={{ mb: 1.25 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '1rem',
+                                                fontWeight: 500,
+                                                color: theme.palette.secondary[200]
+                                            }}
+                                        >
+                                            Vehicle Details
+                                        </Typography>
                                     </Grid>
-                                </Grid>
-                                <Grid item>
-                                    <Grid container alignItems="center">
-                                        <Grid item>
-                                            <Typography sx={{ mr: 1, mt: 1.75, mb: 0.75 }}>
-                                                Add One Or More Vehicles to your vehicle list and get the weekly fuel quota.The weekly fuel
-                                                quota provided to all types of vehicles registered under the QR system has been revised
-                                            </Typography>
-                                        </Grid>
+                                    <Grid item>
+                                        <Avatar
+                                            variant="rounded"
+                                            sx={{
+                                                ...theme.typography.commonAvatar,
+                                                ...theme.typography.largeAvatar,
+                                                backgroundColor: theme.palette.warning[800],
+                                                mt: 1
+                                            }}
+                                        >
+                                            <DirectionsCarIcon fontSize="inherit" onClick={manageVehicleDetails} />
+                                            {/* <img src={EarningIcon} alt="Notification" /> */}
+                                        </Avatar>
                                     </Grid>
                                 </Grid>
                             </Grid>
-                        ) : (
+                            <Grid item>
+                                <Grid container alignItems="center">
+                                    <Grid item>
+                                        <Typography sx={{ mr: 1, mt: 1.75, mb: 0.75 }}>
+                                            Add One Or More Vehicles to your vehicle list and get the weekly fuel quota.The weekly fuel
+                                            quota provided to all types of vehicles registered under the QR system has been revised
+                                        </Typography>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+                        {/* ) : (
                             ''
-                        )}
+                        )} */}
                     </Box>
                 </CardWrapper>
             )}
