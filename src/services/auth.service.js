@@ -26,7 +26,6 @@ const login = (username, password) => {
 };
 
 const sendOTP = (email) => {
-    console.log(email);
     return axios.post(API_URL + 'sendOTPMail/' + `${email}`, {}).then((response) => {
         // if (response.data.accessToken) {
         //     localStorage.setItem('user', JSON.stringify(response.data));

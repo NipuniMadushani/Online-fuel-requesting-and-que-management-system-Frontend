@@ -13,9 +13,9 @@ import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
 import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
-import VehicleDetails from './VehicleDetails';
-
-function ViewVahicleDetails() {
+import Stripe from 'react-stripe-checkout';
+import axios from 'axios';
+function ViewPayment() {
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
     const [vehicleId, setVehicleId] = useState('');
@@ -58,39 +58,6 @@ function ViewVahicleDetails() {
             field: 'fuelType',
             filterPlaceholder: 'filter',
             align: 'center'
-        },
-
-        {
-            title: 'Status',
-            field: 'activeState',
-            filterPlaceholder: 'True || False',
-            align: 'center',
-            emptyValue: () => <em>null</em>,
-            render: (rowData) => (
-                <div
-                    style={{
-                        alignItems: 'center',
-                        align: 'center',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                        // background: rowData.status === true ? "#008000aa" : "#f90000aa",
-                        // borderRadius: "4px",
-                        // paddingLeft: 5,
-                        // paddingRight: 5,
-                    }}
-                >
-                    {rowData.activeState === true ? (
-                        <FormGroup>
-                            <FormControlLabel control={<Switch size="small" />} checked={true} />
-                        </FormGroup>
-                    ) : (
-                        <FormGroup>
-                            <FormControlLabel control={<Switch color="error" size="small" />} checked={false} />
-                        </FormGroup>
-                    )}
-                </div>
-            )
         }
 
         // {
@@ -158,19 +125,19 @@ function ViewVahicleDetails() {
         }
     }, [error]);
 
-    useEffect(() => {
-        if (vehicle) {
-            console.log(currentUser.id);
-            setHandleToast(true);
-            dispatch(getAllVehicleData(currentUser.id));
-        }
-    }, [vehicle]);
+    // useEffect(() => {
+    //     if (vehicle) {
+    //         console.log(currentUser.id);
+    //         setHandleToast(true);
+    //         dispatch(getAllVehicleData(currentUser.id));
+    //     }
+    // }, [vehicle]);
 
-    useEffect(() => {
-        console.log(currentUser.id);
-        dispatch(getAllVehicleData(currentUser.id));
-        // dispatch(getActivity_SupplementLatestModifiedDetails());
-    }, []);
+    // useEffect(() => {
+    //     console.log(currentUser.id);
+    //     dispatch(getAllVehicleData(currentUser.id));
+    //     // dispatch(getActivity_SupplementLatestModifiedDetails());
+    // }, []);
 
     const handleClickOpen = (type, data) => {
         if (type === 'VIEW_UPDATE') {
@@ -196,16 +163,37 @@ function ViewVahicleDetails() {
     const handleErrorToast = () => {
         setOpenErrorToast(false);
     };
+
+    async function handleToken(token) {
+        // console.log(token);
+        await axios
+            .post('http://localhost:8090/api/auth/v1/payment/charge', '', {
+                headers: {
+                    token: token.id,
+                    amount: 500
+                }
+            })
+            .then(() => {
+                alert('Payment Success');
+            })
+            .catch((error) => {
+                alert(error);
+            });
+    }
     return (
         <div>
-            <MainCard title="Vehicle Details">
+            <MainCard title="Payment">
                 {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
                 <br />
                 <Grid container spacing={gridSpacing}>
                     <Grid item xs={12}>
                         <Grid container spacing={gridSpacing}>
                             <Grid item xs={12}>
-                                <MaterialTable
+                                <Stripe
+                                    stripeKey="pk_test_51Ld3w1E1b0Yn7D2JCsh2prL6ODEGaeHvi4XzXNy859KDuBIjZFPEVGl8x7uPPSKvcEOsUR9OhfFTCaJcPiezNDqX0005Y6up44"
+                                    token={handleToken}
+                                />
+                                {/* <MaterialTable
                                     columns={columns}
                                     data={tableData}
                                     actions={[
@@ -265,13 +253,13 @@ function ViewVahicleDetails() {
                                             padding: 0
                                         }
                                     }}
-                                />
+                                /> */}
 
-                                {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
+                                {/* {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
                                 {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
                                 {openErrorToast ? (
                                     <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
-                                ) : null}
+                                ) : null} */}
                             </Grid>
                         </Grid>
                         {/* </SubCard> */}
@@ -282,4 +270,4 @@ function ViewVahicleDetails() {
     );
 }
 
-export default ViewVahicleDetails;
+export default ViewPayment;

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 // material-ui
 import { styled, useTheme } from '@mui/material/styles';
@@ -18,8 +18,10 @@ import FileCopyTwoToneIcon from '@mui/icons-material/FileCopyOutlined';
 import PictureAsPdfTwoToneIcon from '@mui/icons-material/PictureAsPdfOutlined';
 import ArchiveTwoToneIcon from '@mui/icons-material/ArchiveOutlined';
 import AddIcon from '@mui/icons-material/Add';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useNavigate } from 'react-router';
+import AuthService from 'services/auth.service';
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.secondary.dark,
     color: '#fff',
@@ -30,7 +32,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
         position: 'absolute',
         width: 210,
         height: 210,
-        background: theme.palette.secondary[800],
+        background: `linear-gradient(210.04deg, ${theme.palette.warning.dark} -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
         borderRadius: '50%',
         top: -85,
         right: -95,
@@ -44,7 +46,7 @@ const CardWrapper = styled(MainCard)(({ theme }) => ({
         position: 'absolute',
         width: 210,
         height: 210,
-        background: theme.palette.secondary[800],
+        background: `linear-gradient(210.04deg, ${theme.palette.warning.dark} -50.94%, rgba(144, 202, 249, 0) 83.49%)`,
         borderRadius: '50%',
         top: -125,
         right: -15,
@@ -62,6 +64,7 @@ const EarningCard = ({ isLoading }) => {
     const theme = useTheme();
     const navigate = useNavigate();
     const [anchorEl, setAnchorEl] = useState(null);
+    const [vehicleOwnerCardVisible, setVehicleOwnerCardVisible] = useState(false);
 
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -76,114 +79,70 @@ const EarningCard = ({ isLoading }) => {
         navigate('/manage-vehicle', { replace: true });
     };
 
+    useEffect(() => {
+        const currentUser = AuthService.getCurrentUser();
+        console.log(currentUser?.roles[0]);
+        if (currentUser?.roles[0] === 'ROLE_CUSTOMER') {
+            setVehicleOwnerCardVisible(true);
+        } else {
+            setVehicleOwnerCardVisible(false);
+        }
+    }, []);
+
     return (
         <>
             {isLoading ? (
                 ''
             ) : (
                 // <SkeletonEarningCard />
+
                 <CardWrapper border={false} content={false}>
                     <Box sx={{ p: 2.25 }}>
+                        {/* {vehicleOwnerCardVisible ? ( */}
                         <Grid container direction="column">
                             <Grid item>
                                 <Grid container justifyContent="space-between">
+                                    <Grid item sx={{ mb: 1.25 }}>
+                                        <Typography
+                                            sx={{
+                                                fontSize: '1rem',
+                                                fontWeight: 500,
+                                                color: theme.palette.secondary[200]
+                                            }}
+                                        >
+                                            Vehicle Details
+                                        </Typography>
+                                    </Grid>
                                     <Grid item>
                                         <Avatar
                                             variant="rounded"
                                             sx={{
                                                 ...theme.typography.commonAvatar,
                                                 ...theme.typography.largeAvatar,
-                                                backgroundColor: theme.palette.secondary[800],
+                                                backgroundColor: theme.palette.warning[800],
                                                 mt: 1
                                             }}
                                         >
-                                            <img src={EarningIcon} alt="Notification" />
+                                            <DirectionsCarIcon fontSize="inherit" onClick={manageVehicleDetails} />
+                                            {/* <img src={EarningIcon} alt="Notification" /> */}
                                         </Avatar>
-                                    </Grid>
-                                    <Grid item>
-                                        <Avatar
-                                            variant="rounded"
-                                            sx={{
-                                                ...theme.typography.commonAvatar,
-                                                ...theme.typography.mediumAvatar,
-                                                backgroundColor: theme.palette.secondary.dark,
-                                                color: theme.palette.secondary[200],
-                                                zIndex: 1
-                                            }}
-                                            aria-controls="menu-earning-card"
-                                            aria-haspopup="true"
-                                            onClick={handleClick}
-                                        >
-                                            <MoreHorizIcon fontSize="inherit" />
-                                        </Avatar>
-                                        <Menu
-                                            id="menu-earning-card"
-                                            anchorEl={anchorEl}
-                                            keepMounted
-                                            open={Boolean(anchorEl)}
-                                            onClose={handleClose}
-                                            variant="selectedMenu"
-                                            anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'right'
-                                            }}
-                                            transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right'
-                                            }}
-                                        >
-                                            <MenuItem onClick={manageVehicleDetails} to="/pages/login/login3">
-                                                <AddIcon sx={{ mr: 1.75 }} /> Add Vehicle
-                                            </MenuItem>
-                                            <MenuItem onClick={handleClose}>
-                                                <GetAppTwoToneIcon sx={{ mr: 1.75 }} /> Import Card
-                                            </MenuItem>
-                                            <MenuItem onClick={handleClose}>
-                                                <FileCopyTwoToneIcon sx={{ mr: 1.75 }} /> Copy Data
-                                            </MenuItem>
-                                            <MenuItem onClick={handleClose}>
-                                                <PictureAsPdfTwoToneIcon sx={{ mr: 1.75 }} /> Export
-                                            </MenuItem>
-                                            <MenuItem onClick={handleClose}>
-                                                <ArchiveTwoToneIcon sx={{ mr: 1.75 }} /> Archive File
-                                            </MenuItem>
-                                        </Menu>
                                     </Grid>
                                 </Grid>
                             </Grid>
                             <Grid item>
                                 <Grid container alignItems="center">
                                     <Grid item>
-                                        <Typography sx={{ fontSize: '2.125rem', fontWeight: 500, mr: 1, mt: 1.75, mb: 0.75 }}>
-                                            {/* $500.00 */}
+                                        <Typography sx={{ mr: 1, mt: 1.75, mb: 0.75 }}>
+                                            Add One Or More Vehicles to your vehicle list and get the weekly fuel quota.The weekly fuel
+                                            quota provided to all types of vehicles registered under the QR system has been revised
                                         </Typography>
                                     </Grid>
-                                    {/* <Grid item>
-                                        <Avatar
-                                            sx={{
-                                                cursor: 'pointer',
-                                                ...theme.typography.smallAvatar,
-                                                backgroundColor: theme.palette.secondary[200],
-                                                color: theme.palette.secondary.dark
-                                            }}
-                                        >
-                                            <ArrowUpwardIcon fontSize="inherit" sx={{ transform: 'rotate3d(1, 1, 1, 45deg)' }} />
-                                        </Avatar>
-                                    </Grid> */}
                                 </Grid>
                             </Grid>
-                            <Grid item sx={{ mb: 1.25 }}>
-                                <Typography
-                                    sx={{
-                                        fontSize: '1rem',
-                                        fontWeight: 500,
-                                        color: theme.palette.secondary[200]
-                                    }}
-                                >
-                                    Vehicle Details
-                                </Typography>
-                            </Grid>
                         </Grid>
+                        {/* ) : (
+                            ''
+                        )} */}
                     </Box>
                 </CardWrapper>
             )}

@@ -5,7 +5,9 @@ import {
     GET_ALL_VEHICLE_DATA,
     GET_VEHICLE_DETAILS_BY_CODE,
     GET_VEHICLE_LAST_MODIFIED_DATE_TIME,
-    UPDATE_VEHICLE_DATA
+    UPDATE_VEHICLE_DATA,
+    CHECK_VEHICLE_NUMBER_DUPLICATE,
+    CHECK_CHASSIS_NUMBER_DUPLICATE
 } from 'store/constants/VehicleConstant';
 
 export const saveVehicleData = (data) => {
@@ -15,9 +17,10 @@ export const saveVehicleData = (data) => {
         data
     };
 };
-export const getAllVehicleData = () => {
+export const getAllVehicleData = (data) => {
     return {
-        type: GET_ALL_VEHICLE_DATA
+        type: GET_ALL_VEHICLE_DATA,
+        data: data
     };
 };
 
@@ -41,9 +44,16 @@ export const updateVehicleData = (data) => {
     };
 };
 
-export const checkDuplicateVehiclesCode = (data) => {
+export const checkVehicleNumber = (data) => {
     return {
-        type: CHECK_VEHICLE_CODE_DUPLICATE,
+        type: CHECK_VEHICLE_NUMBER_DUPLICATE,
+        data: data
+    };
+};
+
+export const checkChassisNumber = (data) => {
+    return {
+        type: CHECK_CHASSIS_NUMBER_DUPLICATE,
         data: data
     };
 };

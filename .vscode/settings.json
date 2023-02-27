@@ -1,0 +1,4 @@
+{
+    "intelephense.maxMemory": 6000,
+    "files.maxMemoryForLargeFilesMB": 6000
+}

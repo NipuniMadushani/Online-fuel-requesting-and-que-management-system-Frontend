@@ -13,17 +13,20 @@ import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
 import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
-import VehicleDetails from './VehicleDetails';
+import FuelStation from './FuelStation';
+import { getAllFillingStationData } from 'store/actions/FillingStationAction';
+import SuccessMsgFillingStation from 'views/messages/SucessMsgFillingStation';
 
-function ViewVahicleDetails() {
+function ViewFuelStationRegistrtion() {
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
-    const [vehicleId, setVehicleId] = useState('');
+    const [fuelStationId, setFuelStationId] = useState('');
     const [mode, setMode] = useState('INSERT');
     const [openToast, setHandleToast] = useState(false);
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
+    const [managerEmail, setManagerEmail] = useState('');
 
     const columns = [
         {
@@ -34,32 +37,31 @@ function ViewVahicleDetails() {
             hidden: true
         },
         {
-            title: 'Vehicle Number',
-            field: 'vehicleNumber',
+            title: 'Owner Name',
+            field: 'ownerName',
             filterPlaceholder: 'filter',
             align: 'center'
         },
         {
-            title: 'Chassis Number',
-            field: 'chassisNumber',
+            title: 'Fuel Station Name',
+            field: 'displayName',
             filterPlaceholder: 'filter',
             align: 'center'
         },
 
         {
-            title: 'Vehicle Type',
-            field: 'vehicleType',
+            title: 'Near By Town',
+            field: 'nearByTown',
             filterPlaceholder: 'filter',
             align: 'center'
         },
 
         {
-            title: 'Fuel Type',
-            field: 'fuelType',
+            title: 'Address',
+            field: 'location',
             filterPlaceholder: 'filter',
             align: 'center'
         },
-
         {
             title: 'Status',
             field: 'activeState',
@@ -92,54 +94,13 @@ function ViewVahicleDetails() {
                 </div>
             )
         }
-
-        // {
-        //     title: 'Location Code',
-        //     field: 'locationCode',
-        //     filterPlaceholder: 'filter',
-        //     align: 'center'
-        // },
-        // {
-        //     title: 'Max Pax',
-        //     field: 'maxPax',
-        //     filterPlaceholder: 'filter',
-        //     align: 'center'
-        // },
-
-        // {
-        //     title: 'Status',
-        //     field: 'status',
-        //     filterPlaceholder: 'True || False',
-        //     align: 'center',
-        //     emptyValue: () => <em>null</em>,
-        //     render: (rowData) => (
-        //         <div
-        //             style={{
-        //                 alignItems: 'center',
-        //                 align: 'center',
-        //                 display: 'flex',
-        //                 justifyContent: 'center',
-        //                 alignItems: 'center'
-        //             }}
-        //         >
-        //             {rowData.status === true ? (
-        //                 <FormGroup>
-        //                     <FormControlLabel control={<Switch size="small" />} checked={true} />
-        //                 </FormGroup>
-        //             ) : (
-        //                 <FormGroup>
-        //                     <FormControlLabel control={<Switch size="small" />} checked={false} />
-        //                 </FormGroup>
-        //             )}
-        //         </div>
-        //     )
-        // }
     ];
 
     const dispatch = useDispatch();
     const error = useSelector((state) => state.vehicleReducer.errorMsg);
-    const vehicle = useSelector((state) => state.vehicleReducer.vehicle);
-    const vehicleList = useSelector((state) => state.vehicleReducer.vehicleList);
+    const fillingStation = useSelector((state) => state.fillingStationReducer.fillingStation);
+    const fillingStationList = useSelector((state) => state.fillingStationReducer.fillingStationList);
+
     // const lastModifiedDate = useSelector((state) => state.activity_supplimentReducer.lastModifiedDateTime);
 
     // useEffect(() => {
@@ -147,10 +108,10 @@ function ViewVahicleDetails() {
     // }, [lastModifiedDate]);
 
     useEffect(() => {
-        if (vehicleList?.length > 0) {
-            setTableData(vehicleList);
+        if (fillingStationList?.length > 0) {
+            setTableData(fillingStationList);
         }
-    }, [vehicleList]);
+    }, [fillingStationList]);
 
     useEffect(() => {
         if (error != null) {
@@ -159,29 +120,31 @@ function ViewVahicleDetails() {
     }, [error]);
 
     useEffect(() => {
-        if (vehicle) {
+        if (fillingStation) {
             console.log(currentUser.id);
+            setManagerEmail(fillingStation.managerEmail);
             setHandleToast(true);
-            dispatch(getAllVehicleData(currentUser.id));
+
+            dispatch(getAllFillingStationData());
         }
-    }, [vehicle]);
+    }, [fillingStation]);
 
     useEffect(() => {
         console.log(currentUser.id);
-        dispatch(getAllVehicleData(currentUser.id));
+        dispatch(getAllFillingStationData());
         // dispatch(getActivity_SupplementLatestModifiedDetails());
     }, []);
 
     const handleClickOpen = (type, data) => {
         if (type === 'VIEW_UPDATE') {
             setMode(type);
-            setVehicleId(data.id);
+            setFuelStationId(data.id);
         } else if (type === 'INSERT') {
-            setVehicleId('');
+            setFuelStationId('');
             setMode(type);
         } else {
             setMode(type);
-            setVehicleId(data.id);
+            setFuelStationId(data.id);
         }
         setOpen(true);
     };
@@ -198,7 +161,7 @@ function ViewVahicleDetails() {
     };
     return (
         <div>
-            <MainCard title="Vehicle Details">
+            <MainCard title="Fuel Station Details">
                 {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
                 <br />
                 <Grid container spacing={gridSpacing}>
@@ -215,11 +178,11 @@ function ViewVahicleDetails() {
                                             isFreeAction: true,
                                             onClick: () => handleClickOpen('INSERT', null)
                                         },
-                                        // (rowData) => ({
-                                        //     icon: tableIcons.Edit,
-                                        //     tooltip: 'Edit',
-                                        //     onClick: () => handleClickOpen('VIEW_UPDATE', rowData)
-                                        // }),
+                                        (rowData) => ({
+                                            icon: tableIcons.Edit,
+                                            tooltip: 'Edit',
+                                            onClick: () => handleClickOpen('VIEW_UPDATE', rowData)
+                                        }),
                                         (rowData) => ({
                                             icon: tableIcons.VisibilityIcon,
                                             tooltip: 'View',
@@ -267,8 +230,19 @@ function ViewVahicleDetails() {
                                     }}
                                 />
 
-                                {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
-                                {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
+                                {open ? (
+                                    <FuelStation open={open} handleClose={handleClose} fuelStationId={fuelStationId} mode={mode} />
+                                ) : (
+                                    ''
+                                )}
+                                {openToast ? (
+                                    <SuccessMsgFillingStation
+                                        openToast={openToast}
+                                        email={managerEmail}
+                                        handleToast={handleToast}
+                                        mode={mode}
+                                    />
+                                ) : null}
                                 {openErrorToast ? (
                                     <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
                                 ) : null}
@@ -282,4 +256,4 @@ function ViewVahicleDetails() {
     );
 }
 
-export default ViewVahicleDetails;
+export default ViewFuelStationRegistrtion;

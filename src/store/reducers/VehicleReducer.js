@@ -11,7 +11,9 @@ import {
     SUCCESS_GET_VEHICLE_DETAILS_BY_CODE,
     SUCCESS_GET_VEHICLE_LAST_MODIFIED_DATE_TIME,
     UPDATE_FAILED_VEHICLE_DATA,
-    UPDATE_SUCCESS_VEHICLE_DATA
+    UPDATE_SUCCESS_VEHICLE_DATA,
+    VEHICLE_NUMBER_DUPLICATE,
+    CHASSIS_NUMBER_DUPLICATE
 } from 'store/constants/VehicleConstant';
 
 const initialState = {
@@ -20,7 +22,8 @@ const initialState = {
     vehicleToUpdate: null,
     errorMsg: null,
     duplicateCodeType: null,
-    duplicateCode: null,
+    duplicateVehicleNumber: null,
+    duplicateChassisNumber: null,
     lastModifiedDateTime: null,
     cluterTypesDetails: [],
     vehicleActiveList: []
@@ -71,8 +74,11 @@ export const vehicleReducer = (state = initialState, action) => {
         case FAILED_GET_ALL_VEHICLE_DATA:
             return { ...state, vehicleList: data };
 
-        case VEHICLE_CODE_DUPLICATE:
-            return { ...state, duplicateCode: data };
+        case VEHICLE_NUMBER_DUPLICATE:
+            return { ...state, duplicateVehicleNumber: data };
+
+        case CHASSIS_NUMBER_DUPLICATE:
+            return { ...state, duplicateChassisNumber: data };
 
         case SUCCESS_GET_VEHICLE_LAST_MODIFIED_DATE_TIME:
             return { ...state, lastModifiedDateTime: data.payload[0].dateTime };

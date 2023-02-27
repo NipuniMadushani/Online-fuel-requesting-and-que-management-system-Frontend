@@ -11,7 +11,9 @@ import themes from 'themes';
 
 // project imports
 import NavigationScroll from 'layout/NavigationScroll';
-
+import ThemeRoutes from 'routes';
+import AuthService from 'services/auth.service';
+const currentUser = AuthService.getCurrentUser();
 // ==============================|| APP ||============================== //
 
 const App = () => {
@@ -22,7 +24,9 @@ const App = () => {
             <ThemeProvider theme={themes(customization)}>
                 <CssBaseline />
                 <NavigationScroll>
-                    <Routes />
+                    {/* if(currentUser.roles[0]=="ROLE_CUSTOMER"){ */}
+                    <ThemeRoutes />
+                    {/* } */}
                 </NavigationScroll>
             </ThemeProvider>
         </StyledEngineProvider>

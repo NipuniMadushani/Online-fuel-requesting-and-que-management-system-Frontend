@@ -14,14 +14,16 @@ import {
     SUCCESS_GET_VEHICLE_DETAILS_BY_CODE,
     SUCCESS_GET_VEHICLE_LAST_MODIFIED_DATE_TIME,
     UPDATE_FAILED_VEHICLE_DATA,
-    UPDATE_SUCCESS_VEHICLE_DATA
+    UPDATE_SUCCESS_VEHICLE_DATA,
+    VEHICLE_NUMBER_DUPLICATE,
+    CHASSIS_NUMBER_DUPLICATE
 } from 'store/constants/VehicleConstant';
 
-export function* getAllVehicleDataSaga() {
-    console.log('guide class');
+export function* getAllVehicleDataSaga(action) {
+    console.log('vehicle:' + `${action.data}`);
     let responseData = [];
     try {
-        responseData = yield call(get, `http://localhost:8090/api/auth/v1/Vehicle/`);
+        responseData = yield call(get, `http://localhost:8090/api/auth/v1/Vehicle/allRegistered/${action.data}`);
         console.log(responseData);
         yield put({ type: SUCCESS_GET_ALL_VEHICLE_DATA, data: responseData.data });
     } catch (e) {
@@ -59,7 +61,7 @@ export function* saveVehicleDataHandler(action) {
 export function* getVehicleDetailsByCodeSaga(action) {
     let responseData = [];
     try {
-        responseData = yield call(getById, `${process.env.REACT_APP_TOUR_URL}/Vehicle/${action.data.id}`);
+        responseData = yield call(getById, `http://localhost:8090/api/auth/v1/Vehicle/${action.data.id}`);
         console.log('response data:' + responseData);
         yield put({ type: SUCCESS_GET_VEHICLE_DETAILS_BY_CODE, data: responseData.data });
     } catch (e) {
@@ -80,15 +82,27 @@ export function* updateVehicleDataSaga(action) {
     }
 }
 
-export function* checkVehicleDupicateCodeSaga(action) {
+export function* checkVehicleDupicateNumberSaga(action) {
     let responseData = [];
     try {
-        responseData = yield call(getById, `${process.env.REACT_APP_TOUR_URL}/Vehicle/codeDuplicate/${action.data}`);
+        responseData = yield call(getById, `http://localhost:8090/api/auth/v1/Vehicle/vehicleNumberDuplicate/${action.data}`);
         console.log(responseData);
-        yield put({ type: VEHICLE_CODE_DUPLICATE, data: responseData.data });
+        yield put({ type: VEHICLE_NUMBER_DUPLICATE, data: responseData.data });
     } catch (e) {
         console.log(responseData);
-        yield put({ type: VEHICLE_CODE_DUPLICATE, data: responseData });
+        yield put({ type: VEHICLE_NUMBER_DUPLICATE, data: responseData });
+    }
+}
+
+export function* checkChassisDupicateNumberSaga(action) {
+    let responseData = [];
+    try {
+        responseData = yield call(getById, `http://localhost:8090/api/auth/v1/Vehicle/chassisNumberDuplicate/${action.data}`);
+        console.log(responseData);
+        yield put({ type: CHASSIS_NUMBER_DUPLICATE, data: responseData.data });
+    } catch (e) {
+        console.log(responseData);
+        yield put({ type: CHASSIS_NUMBER_DUPLICATE, data: responseData });
     }
 }
 
