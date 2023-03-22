@@ -18,10 +18,10 @@ const RegisteredDailyQueueCard = () => (
                 }
             }}
         >
-            <Grid container alignItems="center" spacing={0}>
+            {/* <Grid container alignItems="center" spacing={0}>
                 <Grid item xs={6} sx={{ p: 3 }}>
                     <Typography variant="h2" align="center">
-                        19<sup></sup>
+                        5
                     </Typography>
                     <Typography variant="subtitle2" align="center">
                         Registered Daily Queue
@@ -33,6 +33,24 @@ const RegisteredDailyQueueCard = () => (
                     </Typography>
                     <Typography variant="subtitle2" align="center" sx={{ color: '#fff' }}>
                         Matugama
+                    </Typography>
+                </Grid>
+            </Grid> */}
+            <Grid container alignItems="center" spacing={0}>
+                <Grid item xs={6} sx={{ p: 3 }}>
+                    <Typography variant="h2" align="center">
+                        5{/* <sup> Petrol : 500 L </sup> */}
+                    </Typography>
+                    <Typography variant="subtitle2" align="center">
+                        Registered Daily Queue
+                    </Typography>
+                </Grid>
+                <Grid item xs={6} sx={{ bgcolor: 'error.dark', p: 3 }}>
+                    <Typography variant="subtitle2" align="center">
+                        <QueueIcon sx={{ color: '#fff' }} />
+                    </Typography>
+                    <Typography variant="subtitle2" align="center" sx={{ color: '#fff' }}>
+                        FuelIn -Kaluthara
                     </Typography>
                 </Grid>
             </Grid>

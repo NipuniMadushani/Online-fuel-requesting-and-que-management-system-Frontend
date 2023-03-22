@@ -27,17 +27,21 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useRef } from 'react';
+import { useLocation } from 'react-router';
+import { useEffect } from 'react';
 
 const ViewGenerateToken = () => {
+    const { state } = useLocation();
+    const { request } = state;
     const initialValues = {
-        vehicleNumber: '',
+        vehicleNumber: request.vehicle,
         eligibleQuota: '',
         vehicleType: '',
         fromDate: '',
         toDate: '',
         createdBy: 'admin'
     };
-    const [qrValue, setQrValue] = useState('Malinga Lakshan');
+    const [qrValue, setQrValue] = useState(request.vehicle);
     const [qrImageUrl, setqrImgaeUrl] = useState('');
     const [data, setData] = useState(null);
     const [file, setFile] = useState(null);
@@ -51,6 +55,9 @@ const ViewGenerateToken = () => {
             setqrImgaeUrl(response);
         }
     };
+    useEffect(() => {
+        console.log(request);
+    }, [request]);
 
     const handleClick = () => {
         fileRef.current.click();
@@ -70,7 +77,7 @@ const ViewGenerateToken = () => {
     };
     const handleScanWebCam = (result) => {
         if (result) {
-            setScanResultWebCam(result);
+            // setScanResultWebCam(result);
         }
     };
 
@@ -111,9 +118,9 @@ const ViewGenerateToken = () => {
                                                                 }}
                                                                 // disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
                                                                 id="standard-select-currency"
-                                                                select
                                                                 label="Select Vehicle Number"
                                                                 name="vehicleNumber"
+                                                                disabled
                                                                 onChange={handleChange}
                                                                 onBlur={handleBlur}
                                                                 InputLabelProps={{
@@ -129,7 +136,7 @@ const ViewGenerateToken = () => {
                                                                 //         : ''
                                                                 // }
                                                             >
-                                                                <MenuItem dense={true} value={'Bike'}>
+                                                                {/* <MenuItem dense={true} value={'Bike'}>
                                                                     Bike
                                                                 </MenuItem>
                                                                 <MenuItem dense={true} value={'Three Wheeler'}>
@@ -143,11 +150,11 @@ const ViewGenerateToken = () => {
                                                                 </MenuItem>
                                                                 <MenuItem dense={true} value={'Van'}>
                                                                     Van
-                                                                </MenuItem>
+                                                                </MenuItem> */}
                                                             </TextField>
                                                         </Grid>
 
-                                                        <Grid item xs={6}>
+                                                        {/* <Grid item xs={6}>
                                                             <TextField
                                                                 // disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
                                                                 // label={taxCode}
@@ -172,8 +179,8 @@ const ViewGenerateToken = () => {
                                                                 // error={Boolean(touched.taxCode && errors.taxCode)}
                                                                 // helperText={touched.taxCode && errors.taxCode ? errors.taxCode : ''}
                                                             />
-                                                        </Grid>
-
+                                                        </Grid> */}
+                                                        {/* 
                                                         <Grid item xs={6}>
                                                             <TextField
                                                                 // disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW'}
@@ -199,7 +206,7 @@ const ViewGenerateToken = () => {
                                                                 // error={Boolean(touched.taxCode && errors.taxCode)}
                                                                 // helperText={touched.taxCode && errors.taxCode ? errors.taxCode : ''}
                                                             />
-                                                        </Grid>
+                                                        </Grid> */}
 
                                                         <Box display="flex" flexDirection="row-reverse" style={{ marginTop: '20px' }}>
                                                             <Button

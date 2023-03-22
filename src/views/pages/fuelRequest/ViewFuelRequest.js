@@ -329,7 +329,7 @@ function ViewFuelRequst() {
                                         exportButton: true,
                                         grouping: true,
                                         exportAllData: true,
-                                        exportFileName: 'TableData',
+                                        exportFileName: 'Fuel Request Data',
                                         actionsColumnIndex: -1,
                                         columnsButton: true,
 

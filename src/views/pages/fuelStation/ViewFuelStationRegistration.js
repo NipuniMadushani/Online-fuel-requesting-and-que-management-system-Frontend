@@ -123,6 +123,7 @@ function ViewFuelStationRegistrtion() {
         if (fillingStation) {
             console.log(currentUser.id);
             setManagerEmail(fillingStation.managerEmail);
+            localStorage.setItem('fillingStationName', fillingStation.display_name);
             setHandleToast(true);
 
             dispatch(getAllFillingStationData());

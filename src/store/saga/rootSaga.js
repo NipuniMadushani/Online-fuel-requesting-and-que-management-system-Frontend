@@ -3,6 +3,8 @@ import { getAllFuelRequestDataByUser } from 'store/actions/FuelRequestAction';
 import {
     ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
     DELETE_FUEL_REQUEST_DETAILS_BY_ID,
+    GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA,
+    GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     GET_ALL_FUEL_REQUEST_DATA,
     GET_ALL_FUEL_REQUEST_DATA_BY_USER,
     GET_FUEL_REQUEST_DETAILS_BY_CODE,
@@ -10,6 +12,7 @@ import {
     GET_QUOTA_BY_VEHICLE_NUMBER,
     GET_WEEK_END_DATE,
     REJECT_FUEL_REQUEST_DETAILS_BY_ID,
+    SAVE_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     SAVE_FUEL_REQUEST_DATA
 } from 'store/constants/FuelRequestConstant';
 import {
@@ -44,6 +47,8 @@ import {
 import {
     acceptFuelRequestByIdDataSaga,
     deleteFuelRequestByIdDataSaga,
+    getAllFuelRequestDataAllSaga,
+    getAllFuelRequestDataByFillingStationHandler,
     getAllFuelRequestDataByUserSaga,
     getAllFuelRequstDataSaga,
     getEligibleQuotaDetailsByVehicleNumberSaga,
@@ -51,6 +56,7 @@ import {
     getFuelRequestLatestModifiedDateSaga,
     getWeekEndDateSaga,
     rejectFuelRequestByIdDataSaga,
+    saveFuelRequestByFillingStationDataHandler,
     saveFuelRequestDataHandler
 } from './FuelRequstSaga';
 import {
@@ -99,6 +105,12 @@ export function* wacherSaga() {
     yield takeLatest(DELETE_FUEL_REQUEST_DETAILS_BY_ID, deleteFuelRequestByIdDataSaga);
     yield takeLatest(ACCEPT_FUEL_REQUEST_DETAILS_BY_ID, acceptFuelRequestByIdDataSaga);
     yield takeLatest(REJECT_FUEL_REQUEST_DETAILS_BY_ID, rejectFuelRequestByIdDataSaga);
+
+    // fuel request by filling station
+
+    yield takeLatest(SAVE_FUEL_REQUEST_BY_FILLING_STATION_DATA, saveFuelRequestByFillingStationDataHandler);
+    yield takeLatest(GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA, getAllFuelRequestDataByFillingStationHandler);
+    yield takeLatest(GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA, getAllFuelRequestDataAllSaga);
 }
 
 // yield takeLatest(GET_ALL_VEHICLE_DATA, getAllVehicleDataSaga);
