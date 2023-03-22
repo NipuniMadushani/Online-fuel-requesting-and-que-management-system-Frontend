@@ -21,7 +21,7 @@ const RemainingDieselCard = () => (
             <Grid container alignItems="center" spacing={0}>
                 <Grid item xs={6} sx={{ p: 3 }}>
                     <Typography variant="h2" align="center">
-                        19<sup></sup>
+                        500 L
                     </Typography>
                     <Typography variant="subtitle2" align="center">
                         Fuel Status- Remaining Diesel
@@ -32,7 +32,7 @@ const RemainingDieselCard = () => (
                         <EvStationIcon sx={{ color: '#fff' }} />
                     </Typography>
                     <Typography variant="subtitle2" align="center" sx={{ color: '#fff' }}>
-                        Fuelin -Kaluthara
+                        FuelIn -Kaluthara
                     </Typography>
                 </Grid>
             </Grid>

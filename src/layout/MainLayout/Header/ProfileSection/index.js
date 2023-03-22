@@ -176,7 +176,7 @@ const ProfileSection = () => {
                                     <Box sx={{ p: 2 }}>
                                         <Stack>
                                             <Stack direction="row" spacing={0.5} alignItems="center">
-                                                <Typography variant="h4">Have a Nice Day,</Typography>
+                                                <Typography variant="h4">Welcome,</Typography>
                                                 <Typography component="span" variant="h4" sx={{ fontWeight: 400 }}>
                                                     {currentUser === null ? '' : <Typography>{currentUser.username}</Typography>}
                                                 </Typography>
@@ -203,9 +203,9 @@ const ProfileSection = () => {
                                     </Box>
                                     <PerfectScrollbar style={{ height: '100%', maxHeight: 'calc(100vh - 250px)', overflowX: 'hidden' }}>
                                         <Box sx={{ p: 2 }}>
-                                            <UpgradePlanCard />
-                                            <Divider />
-                                            <Card
+                                            {/* <UpgradePlanCard /> */}
+                                            {/* <Divider /> */}
+                                            {/* <Card
                                                 sx={{
                                                     bgcolor: theme.palette.primary.light,
                                                     my: 2
@@ -246,7 +246,7 @@ const ProfileSection = () => {
                                                         </Grid>
                                                     </Grid>
                                                 </CardContent>
-                                            </Card>
+                                            </Card> */}
                                             <Divider />
                                             <List
                                                 component="nav"
@@ -289,14 +289,14 @@ const ProfileSection = () => {
                                                                     <Typography variant="body2">Social Profile</Typography>
                                                                 </Grid>
                                                                 <Grid item>
-                                                                    <Chip
-                                                                        label="02"
+                                                                    {/* <Chip
+                                                                        // label="02"
                                                                         size="small"
                                                                         sx={{
                                                                             bgcolor: theme.palette.warning.dark,
                                                                             color: theme.palette.background.default
                                                                         }}
-                                                                    />
+                                                                    /> */}
                                                                 </Grid>
                                                             </Grid>
                                                         }

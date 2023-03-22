@@ -27,7 +27,13 @@ import {
     SUCCESS_ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
     FAILED_ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
     SUCCESS_REJECT_FUEL_REQUEST_DETAILS_BY_ID,
-    FAILED_REJECT_FUEL_REQUEST_DETAILS_BY_ID
+    FAILED_REJECT_FUEL_REQUEST_DETAILS_BY_ID,
+    ADD_SUCCESS_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    ADD_FAILED_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    SUCCESS_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    FAILED_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    SUCCESS_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA,
+    FAILED_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA
 } from 'store/constants/FuelRequestConstant';
 
 export function* getAllFuelRequstDataSaga(action) {
@@ -85,7 +91,6 @@ export function* updateFuelRequestDataSaga(action) {
     let responseData = [];
     try {
         responseData = yield call(update, action.data);
-        console.log('response data:' + responseData);
         yield put({ type: UPDATE_SUCCESS_FUEL_REQUEST_DATA, data: responseData.data });
     } catch (e) {
         console.log(e);
@@ -194,5 +199,43 @@ export function* rejectFuelRequestByIdDataSaga(action) {
         yield put({ type: SUCCESS_REJECT_FUEL_REQUEST_DETAILS_BY_ID, data: responseData.data });
     } catch (e) {
         yield put({ type: FAILED_REJECT_FUEL_REQUEST_DETAILS_BY_ID, data: responseData.data });
+    }
+}
+
+// by filiing station
+
+export function* saveFuelRequestByFillingStationDataHandler(action) {
+    console.log('action.data:' + action.data);
+    action.data.path = `http://localhost:8090/api/auth/v1/fuel-request-by-fuel-station/`;
+    let responseData = [];
+    try {
+        responseData = yield call(create, action.data);
+        yield put({ type: ADD_SUCCESS_FUEL_REQUEST_BY_FILLING_STATION_DATA, data: responseData.data });
+    } catch (e) {
+        yield put({ type: ADD_FAILED_FUEL_REQUEST_BY_FILLING_STATION_DATA, data: responseData.data });
+    }
+}
+
+export function* getAllFuelRequestDataByFillingStationHandler(action) {
+    let responseData = [];
+    try {
+        responseData = yield call(
+            getById,
+            `http://localhost:8090/api/auth/v1/fuel-request-by-fuel-station/details-by-fuel-station/${action.data.id}`
+        );
+        console.log('response data:' + responseData);
+        yield put({ type: SUCCESS_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA, data: responseData.data });
+    } catch (e) {
+        yield put({ type: FAILED_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA, data: responseData.data });
+    }
+}
+
+export function* getAllFuelRequestDataAllSaga() {
+    let responseData = [];
+    try {
+        responseData = yield call(get, `http://localhost:8090/api/auth/v1/fuel-request-by-fuel-station/all`);
+        yield put({ type: SUCCESS_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA, data: responseData.data });
+    } catch (e) {
+        yield put({ type: FAILED_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA, data: responseData.data });
     }
 }

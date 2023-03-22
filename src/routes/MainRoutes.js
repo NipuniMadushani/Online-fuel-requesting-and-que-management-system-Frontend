@@ -9,6 +9,9 @@ import ViewFuelRequst from 'views/pages/fuelRequest/ViewFuelRequest';
 import ViewGoogleMap from 'views/pages/googleMap/ViewGoogleMap';
 import ViewPayment from 'views/pages/payment/ViewPayment';
 import ViewFuelStationRegistrtion from 'views/pages/fuelStation/ViewFuelStationRegistration';
+import { element } from 'prop-types';
+import ViewNewSchedule from 'views/pages/newSchedule/ViewNewSchedule';
+import ViewFuelRequestFS from 'views/pages/fillingStationFuelRequest/ViewFuelRequestFS';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -115,6 +118,14 @@ const MainRoutes = {
         {
             path: 'fuel-station',
             element: <ViewFuelStationRegistrtion />
+        },
+        {
+            path: 'new-schedule',
+            element: <ViewNewSchedule />
+        },
+        {
+            path: 'fuel-request-filling-station',
+            element: <ViewFuelRequestFS />
         }
     ]
 };

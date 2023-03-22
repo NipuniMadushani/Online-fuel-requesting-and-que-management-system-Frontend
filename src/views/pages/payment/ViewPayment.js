@@ -7,7 +7,7 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import MainCard from 'ui-component/cards/MainCard';
 
-import { FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
+import { FormControlLabel, FormGroup, Grid, Switch, Typography } from '@mui/material';
 
 import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
@@ -15,7 +15,11 @@ import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
 import Stripe from 'react-stripe-checkout';
 import axios from 'axios';
+import Payment from './Checkout/Payment';
+import { useLocation } from 'react-router';
+import OrderSummary from './Checkout/OrderSummary';
 function ViewPayment() {
+    const { state } = useLocation();
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
     const [vehicleId, setVehicleId] = useState('');
@@ -24,6 +28,7 @@ function ViewPayment() {
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
+    const { value } = state;
 
     const columns = [
         {
@@ -114,10 +119,8 @@ function ViewPayment() {
     // }, [lastModifiedDate]);
 
     useEffect(() => {
-        if (vehicleList?.length > 0) {
-            setTableData(vehicleList);
-        }
-    }, [vehicleList]);
+        console.log(value);
+    }, []);
 
     useEffect(() => {
         if (error != null) {
@@ -186,83 +189,32 @@ function ViewPayment() {
                 {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
                 <br />
                 <Grid container spacing={gridSpacing}>
-                    <Grid item xs={12}>
+                    <Grid item xs={6}>
                         <Grid container spacing={gridSpacing}>
+                            <Grid item xs={12}>
+                                <Typography variant="subtitle1">Pay With Stripe</Typography>
+                            </Grid>
                             <Grid item xs={12}>
                                 <Stripe
                                     stripeKey="pk_test_51Ld3w1E1b0Yn7D2JCsh2prL6ODEGaeHvi4XzXNy859KDuBIjZFPEVGl8x7uPPSKvcEOsUR9OhfFTCaJcPiezNDqX0005Y6up44"
                                     token={handleToken}
                                 />
-                                {/* <MaterialTable
-                                    columns={columns}
-                                    data={tableData}
-                                    actions={[
-                                        {
-                                            icon: tableIcons.Add,
-                                            tooltip: 'Add New',
-                                            isFreeAction: true,
-                                            onClick: () => handleClickOpen('INSERT', null)
-                                        },
-                                        // (rowData) => ({
-                                        //     icon: tableIcons.Edit,
-                                        //     tooltip: 'Edit',
-                                        //     onClick: () => handleClickOpen('VIEW_UPDATE', rowData)
-                                        // }),
-                                        (rowData) => ({
-                                            icon: tableIcons.VisibilityIcon,
-                                            tooltip: 'View',
-                                            onClick: () => handleClickOpen('VIEW', rowData)
-                                        })
-                                    ]}
-                                    options={{
-                                        padding: 'dense',
-                                        showTitle: false,
-                                        sorting: true,
-                                        search: true,
-                                        searchFieldAlignment: 'right',
-                                        searchAutoFocus: true,
-                                        searchFieldVariant: 'standard',
-                                        filtering: true,
-                                        paging: true,
-                                        pageSizeOptions: [2, 5, 10, 20, 25, 50, 100],
-                                        pageSize: 5,
-                                        paginationType: 'stepped',
-                                        showFirstLastPageButtons: false,
-                                        exportButton: true,
-                                        exportAllData: true,
-                                        exportFileName: 'TableData',
-                                        actionsColumnIndex: -1,
-                                        columnsButton: true,
-
-                                        headerStyle: {
-                                            whiteSpace: 'nowrap',
-                                            height: 20,
-                                            maxHeight: 20,
-                                            padding: 2,
-                                            fontSize: '14px',
-                                            background: '-moz-linear-gradient(top, #0790E8, #3180e6)',
-                                            background: '-ms-linear-gradient(top, #0790E8, #3180e6)',
-                                            background: '-webkit-linear-gradient(top, #0790E8, #3180e6)',
-                                            // textAlign: 'center',
-                                            color: '#FFF'
-                                        },
-                                        rowStyle: {
-                                            whiteSpace: 'nowrap',
-                                            height: 20,
-                                            fontSize: '13px',
-                                            padding: 0
-                                        }
-                                    }}
-                                /> */}
-
-                                {/* {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
-                                {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
-                                {openErrorToast ? (
-                                    <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
-                                ) : null} */}
                             </Grid>
                         </Grid>
                         {/* </SubCard> */}
+                    </Grid>
+
+                    <Grid item xs={6}>
+                        <OrderSummary value={value} />
+                    </Grid>
+                </Grid>
+            </MainCard>
+
+            <MainCard>
+                <Grid container spacing={gridSpacing}>
+                    <Grid item>
+                        {' '}
+                        <Payment request={value} />
                     </Grid>
                 </Grid>
             </MainCard>

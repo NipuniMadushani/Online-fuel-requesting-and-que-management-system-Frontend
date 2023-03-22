@@ -1,8 +1,12 @@
 import {
+    ADD_FAILED_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     ADD_FAILED_FUEL_REQUEST_DATA,
+    ADD_SUCCESS_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     ADD_SUCCESS_FUEL_REQUEST_DATA,
     FAILED_ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
     FAILED_DELETE_FUEL_REQUEST_DETAILS_BY_ID,
+    FAILED_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA,
+    FAILED_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     FAILED_GET_ALL_FUEL_REQUEST_DATA,
     FAILED_GET_ALL_FUEL_REQUEST_DATA_BY_USER,
     FAILED_GET_FUEL_REQUEST_DETAILS_BY_CODE,
@@ -10,6 +14,8 @@ import {
     FAILED_REJECT_FUEL_REQUEST_DETAILS_BY_ID,
     SUCCESS_ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
     SUCCESS_DELETE_FUEL_REQUEST_DETAILS_BY_ID,
+    SUCCESS_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA,
+    SUCCESS_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
     SUCCESS_GET_ALL_FUEL_REQUEST_DATA,
     SUCCESS_GET_ALL_FUEL_REQUEST_DATA_BY_USER,
     SUCCESS_GET_FUEL_REQUEST_DETAILS_BY_CODE,
@@ -20,8 +26,11 @@ import {
 
 const initialState = {
     fuelRequest: null,
+    fuelRequestByFillingStation: null,
     fuelRequstList: [],
     fuelRequestListByUser: [],
+    fuelRequestListByFillingStation: [],
+    allFuelRequestListByFillingStation: [],
     fuelRequstToUpdate: null,
     dateofSunday: null,
     eligibleQuotaDetails: null,
@@ -133,6 +142,34 @@ export const fuelRequestReducer = (state = initialState, action) => {
                 eligibleQuotaDetails: null,
                 errorMsg: data ? data.errorMessages : 'netwok error'
             };
+
+        case ADD_SUCCESS_FUEL_REQUEST_BY_FILLING_STATION_DATA:
+            console.warn('ADD_SUCCESS_CODE_AND_NAME_DATA', action.payload);
+            console.log(data.payload[0]);
+            return { ...state, fuelRequestByFillingStation: data.payload[0] };
+
+        case ADD_FAILED_FUEL_REQUEST_BY_FILLING_STATION_DATA:
+            console.warn('ADD_FAILED_CODE_AND_NAME_DATA', action);
+            console.log(data);
+            return {
+                ...state,
+                fuelRequestByFillingStation: null,
+                errorMsg: data ? data.errorMessages : 'netwok error'
+            };
+
+        case SUCCESS_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA:
+            console.log(data.payload[0]);
+            return { ...state, fuelRequestListByFillingStation: data.payload[0] };
+
+        case FAILED_GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA:
+            return { ...state, fuelRequestListByFillingStation: data };
+
+        case SUCCESS_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA:
+            console.log(data.payload[0]);
+            return { ...state, allFuelRequestListByFillingStation: data.payload[0] };
+
+        case FAILED_GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA:
+            return { ...state, allFuelRequestListByFillingStation: data };
 
         default:
             return state;

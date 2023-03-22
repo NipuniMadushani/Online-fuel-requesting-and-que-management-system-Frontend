@@ -13,7 +13,10 @@ import {
     GET_WEEK_END_DATE,
     DELETE_FUEL_REQUEST_DETAILS_BY_ID,
     ACCEPT_FUEL_REQUEST_DETAILS_BY_ID,
-    REJECT_FUEL_REQUEST_DETAILS_BY_ID
+    REJECT_FUEL_REQUEST_DETAILS_BY_ID,
+    SAVE_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+    GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA
 } from 'store/constants/FuelRequestConstant';
 
 export const saveFuelRequestData = (data) => {
@@ -112,5 +115,27 @@ export const rejectFuelRequestById = (id) => {
     return {
         type: REJECT_FUEL_REQUEST_DETAILS_BY_ID,
         data: { id }
+    };
+};
+
+// FROM FILLING STATION
+
+export const saveFuelRequestByFillingStationData = (data) => {
+    console.log('save Data action s called', data);
+    return {
+        type: SAVE_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+        data
+    };
+};
+export const getAllFuelRequestDataByFillingStation = (id) => {
+    return {
+        type: GET_ALL_FUEL_REQUEST_BY_FILLING_STATION_DATA,
+        data: { id }
+    };
+};
+
+export const getAllFuelRequestDataSendByFillingStation = () => {
+    return {
+        type: GET_ALL_FUEL_REQUEST_BY_ALL_FILLING_STATION_DATA
     };
 };

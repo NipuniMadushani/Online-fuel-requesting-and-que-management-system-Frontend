@@ -32,6 +32,7 @@ import ProjectTaskCard from 'ui-component/cards/Skeleton/ProjectTaskCard';
 import RegisteredVehiclesCard from './RegisteredVehiclesCard';
 import RegisteredDailyQueueCard from './RegisteredDailyQueueCard';
 import RemainingDieselCard from './RemainingDieselCard';
+import RemainingPetrolCard from './RemainingPetrolCard';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -221,6 +222,7 @@ const Dashboard = () => {
     useEffect(() => {
         // setHandleToast(true);
         setTableData(fillingStationDetails);
+        localStorage.setItem('fillingSttaionDetails', JSON.stringify(fillingStationDetails));
     }, [fillingStationDetails]);
 
     const handleClickOpen = (type, data) => {
@@ -328,7 +330,7 @@ const Dashboard = () => {
                         <Grid item xs={12} lg={4} sm={6}>
                             <SideIconCard
                                 iconPrimary={FormatListNumberedRtlIcon}
-                                primary="3,619"
+                                primary="47"
                                 secondary="Active"
                                 secondarySub="Queue"
                                 color={theme.palette.warning.dark}
@@ -388,16 +390,20 @@ const Dashboard = () => {
                 <br />
                 {fillingDetailDetailsShow ? (
                     <Grid container spacing={gridSpacing}>
-                        <Grid item xs={12} lg={4} md={12}>
+                        <Grid item xs={12} lg={3} md={12}>
                             <RegisteredVehiclesCard />
                         </Grid>
 
-                        <Grid item xs={12} lg={4} md={12}>
+                        <Grid item xs={12} lg={3} md={12}>
                             <RegisteredDailyQueueCard />
                         </Grid>
 
-                        <Grid item xs={12} lg={4} md={12}>
+                        <Grid item xs={12} lg={3} md={12}>
                             <RemainingDieselCard />
+                        </Grid>
+
+                        <Grid item xs={12} lg={3} md={12}>
+                            <RemainingPetrolCard />
                         </Grid>
                     </Grid>
                 ) : (

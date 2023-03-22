@@ -20,7 +20,7 @@ const RegisteredVehiclesCard = () => (
             <Grid container alignItems="center" spacing={0}>
                 <Grid item xs={6} sx={{ p: 3 }}>
                     <Typography variant="h2" align="center">
-                        19<sup></sup>
+                        1
                     </Typography>
                     <Typography variant="subtitle2" align="center">
                         Registered Vehicles

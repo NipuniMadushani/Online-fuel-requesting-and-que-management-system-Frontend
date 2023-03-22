@@ -56,6 +56,8 @@ import {
     saveFuelRequestData
 } from 'store/actions/FuelRequestAction';
 import { acceptFuelRequestByIdDataSaga, rejectFuelRequestByIdDataSaga } from 'store/saga/FuelRequstSaga';
+import NewSchedule from '../newSchedule/NewSchedule';
+
 const currentUser = AuthService.getCurrentUser();
 
 const Transition = forwardRef(function Transition(props, ref) {
@@ -96,6 +98,8 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
     const [loadValues, setLoadValues] = useState(null);
     const dispatch = useDispatch();
     const [vehicleDetails, setVehicleDetails] = useState();
+    //new
+    const [vehicleObject, setVehicleObject] = useState();
     const [fillingStationDetails, setFillingStationDetails] = useState();
     const [vehicleData, setVehicle] = useState(null);
     const duplicateVehicleNumber = useSelector((state) => state.vehicleReducer.duplicateVehicleNumber);
@@ -105,7 +109,8 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
     const eligibleQuotaDetails = useSelector((state) => state.fuelRequestReducer.eligibleQuotaDetails);
     const fuelRequstToUpdate = useSelector((state) => state.fuelRequestReducer.fuelRequstToUpdate);
     const [alreadyAcceptedOrRejected, setAlreadyAcceptedOrRejected] = useState(false);
-
+    const [openNewSchedule, setOpenNewSchedule] = useState(false);
+    const [fuelRequstId, setFuelRequstId] = useState('');
     yup.addMethod(yup.string, 'checkDuplicateVehicleNumber', function (message) {
         return this.test('checkDuplicateVehicleNumber', message, async function validateValue(value) {
             if (mode === 'INSERT') {
@@ -201,6 +206,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
 
     const getEligibleQuotaByNumber = (value) => {
         if (mode === 'INSERT') {
+            alert('nipuni');
             dispatch(getEligibleQuotaByVehicleNumber(value));
         }
     };
@@ -219,12 +225,22 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
         }
     };
 
+    const rejectAndNewScheduleRequest = (value) => {
+        if (mode === 'APPROVE') {
+            setFuelRequstId(value);
+            setOpenNewSchedule(true);
+            // dispatch(rejectFuelRequestById(value));
+            // handleClose();
+        }
+    };
+
     useEffect(() => {
         setVehicleDetails(vehicleList);
     }, [vehicleList]);
 
     useEffect(() => {
         if (mode !== 'INSERT' && fuelRequstToUpdate != null) {
+            setVehicleObject(fuelRequstToUpdate.vehicle);
             const initialValues = {
                 id: fuelRequstToUpdate?.id,
                 // userId: currentUser.id,
@@ -241,9 +257,6 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                 scheduleTime: fuelRequstToUpdate.scheduleTime
             };
             setLoadValues(initialValues);
-
-            console.log('appr:' + fuelRequstToUpdate?.approvalState);
-            console.log('reje:' + fuelRequstToUpdate?.rejectState);
 
             if (fuelRequstToUpdate?.rejectState || fuelRequstToUpdate?.approvalState) {
                 setAlreadyAcceptedOrRejected(true);
@@ -288,6 +301,10 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
 
         // }
     }, [eligibleQuotaDetails]);
+
+    // const handleClose = () => {
+    //     setOpenNewSchedule(false);
+    // };
 
     return (
         <div>
@@ -799,6 +816,21 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                         >
                                                             REJECT
                                                         </Button>
+
+                                                        <Button
+                                                            color="success"
+                                                            variant="contained"
+                                                            type="button"
+                                                            disabled={alreadyAcceptedOrRejected}
+                                                            style={{
+                                                                // backgroundColor: '#B22222',
+                                                                marginLeft: '10px'
+                                                            }}
+                                                            onClick={(e) => rejectAndNewScheduleRequest(values.id)}
+                                                            // onClick={(e) => resetForm()}
+                                                        >
+                                                            REJECT WITH NEW SCHEDULE
+                                                        </Button>
                                                         {/* <FormControl>
                                                             <FormLabel id="demo-controlled-radio-buttons-group">Approve/ Reject</FormLabel>
                                                             <RadioGroup
@@ -857,6 +889,18 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                 ''
                                             )}
                                         </Box>
+
+                                        {openNewSchedule ? (
+                                            <NewSchedule
+                                                open={openNewSchedule}
+                                                handleClose={handleClose}
+                                                fuelRequestId={fuelRequstId}
+                                                mode={mode}
+                                                vehicleObj={vehicleObject}
+                                            />
+                                        ) : (
+                                            ''
+                                        )}
                                         {/* <Box>
                                             <Grid item>
                                                 {mode === 'VIEW' ? <CreatedUpdatedUserDetailsWithTableFormat formValues={values} /> : null}

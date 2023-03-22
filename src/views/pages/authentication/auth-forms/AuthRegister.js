@@ -39,7 +39,7 @@ import { strengthColor, strengthIndicator } from 'utils/password-strength';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import AuthService from 'services/auth.service';
-import { openSnackbar } from 'slices/snackbar';
+import { openSnackbar } from 'store/slices/snackbar';
 // ===========================|| FIREBASE - REGISTER ||=========================== //
 
 const FirebaseRegister = ({ ...others }) => {
@@ -143,13 +143,17 @@ const FirebaseRegister = ({ ...others }) => {
                 initialValues={{
                     username: '',
                     email: '',
-                    password: '',
+                    // password: '',
+                    nic: '',
+                    phoneNumber: '',
                     submit: null
                 }}
                 validationSchema={Yup.object().shape({
                     username: Yup.string().required('Username is required'),
                     email: Yup.string().email('Must be a valid email').max(255).required('Email is required'),
-                    password: Yup.string().max(255).required('Password is required')
+                    // password: Yup.string().max(255).required('Password is required'),
+                    nic: Yup.string().max(11).required('NIC is required'),
+                    phoneNumber: Yup.number()
                 })}
                 onSubmit={async (values, { setErrors, setStatus, setSubmitting }) => {
                     console.log('username:' + values.username);
@@ -207,7 +211,7 @@ const FirebaseRegister = ({ ...others }) => {
                             )}
                         </FormControl>
 
-                        <Grid item>
+                        {/* <Grid item>
                             <Box sx={{ mt: 2 }}>
                                 <AnimateButton>
                                     <Button
@@ -255,7 +259,7 @@ const FirebaseRegister = ({ ...others }) => {
                                     </Button>
                                 </AnimateButton>
                             </Box>
-                        </Grid>
+                        </Grid> */}
 
                         {/* <Grid container spacing={matchDownSM ? 0 : 2}>
                             <Grid item xs={12} sm={6}>
@@ -303,7 +307,46 @@ const FirebaseRegister = ({ ...others }) => {
                             )}
                         </FormControl>
 
+                        <FormControl fullWidth error={Boolean(touched.nic && errors.nic)} sx={{ ...theme.typography.customInput }}>
+                            <InputLabel htmlFor="outlined-adornment-nic-register"> NIC</InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-nic-register"
+                                type="text"
+                                value={values.nic}
+                                name="nic"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.nic && errors.nic && (
+                                <FormHelperText error id="standard-weight-helper-text--register">
+                                    {errors.nic}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
                         <FormControl
+                            fullWidth
+                            error={Boolean(touched.phoneNumber && errors.phoneNumber)}
+                            sx={{ ...theme.typography.customInput }}
+                        >
+                            <InputLabel htmlFor="outlined-adornment-phoneNumber-register"> Phone Number</InputLabel>
+                            <OutlinedInput
+                                id="outlined-adornment-phoneNumber-register"
+                                type="number"
+                                value={values.phoneNumber}
+                                name="phoneNumber"
+                                onBlur={handleBlur}
+                                onChange={handleChange}
+                                inputProps={{}}
+                            />
+                            {touched.phoneNumber && errors.phoneNumber && (
+                                <FormHelperText error id="standard-weight-helper-text--register">
+                                    {errors.phoneNumber}
+                                </FormHelperText>
+                            )}
+                        </FormControl>
+
+                        {/* <FormControl
                             fullWidth
                             error={Boolean(touched.password && errors.password)}
                             sx={{ ...theme.typography.customInput }}
@@ -340,7 +383,7 @@ const FirebaseRegister = ({ ...others }) => {
                                     {errors.password}
                                 </FormHelperText>
                             )}
-                        </FormControl>
+                        </FormControl> */}
 
                         {strength !== 0 && (
                             <FormControl fullWidth>
@@ -439,7 +482,7 @@ const FirebaseRegister = ({ ...others }) => {
                                     variant="contained"
                                     color="secondary"
                                 >
-                                    Sign up
+                                    Send OTP & Sign up
                                 </Button>
                             </AnimateButton>
                         </Box>

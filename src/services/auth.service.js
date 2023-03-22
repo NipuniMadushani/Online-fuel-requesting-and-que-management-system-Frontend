@@ -35,6 +35,10 @@ const sendOTP = (email) => {
     });
 };
 
+const fetchNewRequstByUserId = (userId) => {
+    return axios.get('http://localhost:8090/api/auth/v1/new-schedule/newSchedule/' + `${userId}`);
+};
+
 const logout = () => {
     localStorage.removeItem('user');
 };
@@ -49,7 +53,8 @@ const AuthService = {
     login,
     logout,
     getCurrentUser,
-    sendOTP
+    sendOTP,
+    fetchNewRequstByUserId
 };
 
 export default AuthService;

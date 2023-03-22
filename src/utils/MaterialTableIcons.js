@@ -18,7 +18,8 @@ import ViewColumn from '@mui/icons-material/ViewColumn';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CategoryIcon from '@mui/icons-material/Category';
 import AddTaskIcon from '@mui/icons-material/AddTask';
-
+import PaymentsIcon from '@mui/icons-material/Payments';
+import GppBadIcon from '@mui/icons-material/GppBad';
 const tableIcons = {
     Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
     Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
@@ -39,7 +40,9 @@ const tableIcons = {
     ViewColumn: forwardRef((props, ref) => <ViewColumn {...props} ref={ref} />),
     VisibilityIcon: forwardRef((props, ref) => <VisibilityIcon {...props} ref={ref} />),
     CategoryIcon: forwardRef((props, ref) => <CategoryIcon {...props} ref={ref} />),
-    AddTaskIcon: forwardRef((props, ref) => <AddTaskIcon {...props} ref={ref} />)
+    AddTaskIcon: forwardRef((props, ref) => <AddTaskIcon {...props} ref={ref} />),
+    PaymentsIcon: forwardRef((props, ref) => <PaymentsIcon {...props} ref={ref} />),
+    GppBadIcon: forwardRef((props, ref) => <GppBadIcon {...props} ref={ref} />)
 };
 
 export default tableIcons;

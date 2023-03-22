@@ -35,6 +35,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
     const theme = useTheme();
     const [vehicleOwnerVisible, setVehicleOwnerVisible] = useState(false);
     const [fuelInAdminVisible, setFuelInAdminVisible] = useState(false);
+    const [managerVisible, setManagerVisible] = useState(false);
     const [anchorEl, setAnchorEl] = useState();
     const navigate = useNavigate();
     const open = Boolean(anchorEl);
@@ -63,6 +64,11 @@ const Header = ({ handleLeftDrawerToggle }) => {
         // setShowPassword(!showPassword);
     };
 
+    const manageFuelRequestFormFillingStations = () => {
+        setAnchorEl(null);
+        navigate('/fuel-request-filling-station', { replace: true });
+    };
+
     const generateToken = () => {
         // setAnchorEl(null);
         navigate('/generate-token', { replace: true });
@@ -72,6 +78,11 @@ const Header = ({ handleLeftDrawerToggle }) => {
         setAnchorEl(null);
         navigate('/payment', { replace: true });
         // setShowPassword(!showPassword);
+    };
+
+    const requestFuelFromFS = () => {
+        setAnchorEl(null);
+        navigate('/fuel-request-filling-station', { replace: true });
     };
     useEffect(() => {
         const currentUser = AuthService.getCurrentUser();
@@ -86,6 +97,12 @@ const Header = ({ handleLeftDrawerToggle }) => {
             setFuelInAdminVisible(true);
         } else {
             setFuelInAdminVisible(false);
+        }
+
+        if (currentUser?.roles[0] === 'ROLE_FUEL_STATION') {
+            setManagerVisible(true);
+        } else {
+            setManagerVisible(false);
         }
     }, []);
 
@@ -265,7 +282,47 @@ const Header = ({ handleLeftDrawerToggle }) => {
                             >
                                 <MenuItem onClick={manageFuelStationDetails}> Add Fuel Station </MenuItem>
                                 <MenuItem onClick={manageFuelRequest}> Fuel Request </MenuItem>
-                                <MenuItem onClick={makePayement}> Make Payment </MenuItem>
+                                <MenuItem onClick={manageFuelRequestFormFillingStations}> Fuel Request From Filling Stations</MenuItem>
+                                {/* <MenuItem onClick={makePayement}> Make Payment </MenuItem> */}
+
+                                {/* <MenuItem onClick={handleClose}>View Income Report</MenuItem>
+                         <MenuItem onClick={handleClose}>Manage User </MenuItem> */}
+                            </Menu>
+                        </Box>
+                    )}
+                </Box>
+
+                <Box>
+                    {managerVisible && (
+                        <Box>
+                            <Button
+                                id="demo-positioned-button"
+                                aria-controls={open ? 'demo-positioned-menu' : undefined}
+                                aria-haspopup="true"
+                                aria-expanded={open ? 'true' : undefined}
+                                onClick={handleClick}
+                            >
+                                Manager -Filling Station
+                            </Button>
+                            <Menu
+                                id="demo-positioned-menu"
+                                aria-labelledby="demo-positioned-button"
+                                anchorEl={anchorEl}
+                                open={open}
+                                onClose={handleClose}
+                                anchorOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left'
+                                }}
+                                transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left'
+                                }}
+                            >
+                                <MenuItem onClick={manageFuelStationDetails}> View Filling Ststion Details </MenuItem>
+                                <MenuItem onClick={manageFuelRequest}> Update Fuel Stock </MenuItem>
+                                <MenuItem onClick={makePayement}> Scan QR Code </MenuItem>
+                                <MenuItem onClick={requestFuelFromFS}> Request Fuel From FuelIn </MenuItem>
 
                                 {/* <MenuItem onClick={handleClose}>View Income Report</MenuItem>
                          <MenuItem onClick={handleClose}>Manage User </MenuItem> */}
