@@ -130,10 +130,10 @@ function ViewFuelStationRegistrtion() {
         }
     }, [fillingStation]);
 
+    // get all
     useEffect(() => {
         console.log(currentUser.id);
         dispatch(getAllFillingStationData());
-        // dispatch(getActivity_SupplementLatestModifiedDetails());
     }, []);
 
     const handleClickOpen = (type, data) => {

@@ -444,8 +444,8 @@ function FuelStation({ open, handleClose, mode, fuelStationId }) {
                                                                 height: 40
                                                             }
                                                         }}
+                                                        disabled
                                                         type="number"
-                                                        disabled={mode == 'VIEW'}
                                                         label="Petrol Stock"
                                                         name="petrolStock"
                                                         onChange={handleChange}
@@ -465,7 +465,7 @@ function FuelStation({ open, handleClose, mode, fuelStationId }) {
                                                                 height: 40
                                                             }
                                                         }}
-                                                        disabled={mode == 'VIEW'}
+                                                        disabled
                                                         label="Remaining Petrol Stock"
                                                         name="remainingPetrolStock"
                                                         onChange={handleChange}
@@ -487,7 +487,7 @@ function FuelStation({ open, handleClose, mode, fuelStationId }) {
                                                             }
                                                         }}
                                                         type="number"
-                                                        disabled={mode == 'VIEW'}
+                                                        disabled
                                                         label="Diesel Stock"
                                                         name="dieselStock"
                                                         onChange={handleChange}
@@ -507,7 +507,7 @@ function FuelStation({ open, handleClose, mode, fuelStationId }) {
                                                                 height: 40
                                                             }
                                                         }}
-                                                        disabled={mode == 'VIEW'}
+                                                        disabled
                                                         label="Remaining Diesel Stock"
                                                         name="remainingDieselStock"
                                                         onChange={handleChange}
