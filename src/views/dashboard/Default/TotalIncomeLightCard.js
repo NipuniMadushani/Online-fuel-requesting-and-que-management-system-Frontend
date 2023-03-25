@@ -75,9 +75,10 @@ const TotalIncomeLightCard = ({ isLoading }) => {
     return (
         <>
             {isLoading ? (
-                <TotalIncomeCard />
+                ''
             ) : (
-                <CardWrapper border={false} content={false}>
+                // <TotalIncomeCard />
+                <CardWrapper border={false} content={false} onClick={manageFuelRequstDetails}>
                     <Box sx={{ p: 2.25 }}>
                         {vehicleOwnerCardVisible ? (
                             <Grid container direction="column">

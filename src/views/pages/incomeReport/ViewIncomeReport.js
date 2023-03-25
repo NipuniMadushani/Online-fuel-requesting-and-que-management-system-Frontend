@@ -1,5 +1,6 @@
 import { useEffect, useState, forwardRef } from 'react';
 import MaterialTable from 'material-table';
+import { useTheme, styled } from '@mui/material/styles';
 
 import tableIcons from 'utils/MaterialTableIcons';
 import { gridSpacing } from 'store/constant';
@@ -7,23 +8,37 @@ import { useSelector, useDispatch } from 'react-redux';
 
 import MainCard from 'ui-component/cards/MainCard';
 
-import { FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
+import { FormControlLabel, FormGroup, Grid, Switch, Chip } from '@mui/material';
 
 import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
 import { getAllVehicleData } from 'store/actions/VehicleAction';
 import AuthService from 'services/auth.service';
-import VehicleDetails from './VehicleDetails';
+import { getFillingStationDetailsManagerWise } from 'store/actions/FillingStationAction';
+// import NewScheduleOwner from './NewScheduleConfirm';
 
-function ViewVahicleDetails() {
+function ViewIncomeReport() {
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
-    const [vehicleId, setVehicleId] = useState('');
+    const [newRequestId, setNewRequestId] = useState('');
+    const [fillingstationId, setFillingStationId] = useState('');
     const [mode, setMode] = useState('INSERT');
     const [openToast, setHandleToast] = useState(false);
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
+    const theme = useTheme();
+
+    const chipSX = {
+        height: 24,
+        padding: '0 6px'
+    };
+    const chipErrorSX = {
+        ...chipSX,
+        color: theme.palette.orange.dark,
+        backgroundColor: theme.palette.orange.light,
+        marginRight: '5px'
+    };
 
     const columns = [
         {
@@ -33,31 +48,74 @@ function ViewVahicleDetails() {
             align: 'center',
             hidden: true
         },
+        // {
+        //     title: 'Available Date',
+        //     field: 'availableDate',
+        //     filterPlaceholder: 'filter',
+        //     align: 'center'
+        //     // type: 'date',
+        //     // filterComponent: (props) => <CustomDatePicker {...props} />
+        //     // dateSetting: { locale: 'ko-KR' }
+        // },
+        // {
+        //     title: 'Time',
+        //     field: 'availableTime',
+        //     filterPlaceholder: 'filter',
+        //     align: 'center'
+        // },
+
         {
-            title: 'Vehicle Number',
-            field: 'vehicleNumber',
+            title: 'Vehicle',
+            field: 'vehicle',
             filterPlaceholder: 'filter',
             align: 'center'
         },
         {
-            title: 'Chassis Number',
-            field: 'chassisNumber',
+            title: 'Requested Quota (L)',
+            field: 'actualQuata',
+            filterPlaceholder: 'filter',
+            align: 'center'
+        },
+        {
+            title: 'Price (RS.)',
+            field: 'fualAmount',
             filterPlaceholder: 'filter',
             align: 'center'
         },
 
         {
-            title: 'Vehicle Type',
-            field: 'vehicleType',
-            filterPlaceholder: 'filter',
-            align: 'center'
-        },
-
-        {
-            title: 'Fuel Type',
-            field: 'fuelType',
-            filterPlaceholder: 'filter',
-            align: 'center'
+            title: 'Status',
+            field: 'scheduleState',
+            filterPlaceholder: 'True || False',
+            align: 'center',
+            emptyValue: () => <em>null</em>,
+            render: (rowData) => (
+                <div
+                    style={{
+                        alignItems: 'center',
+                        align: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                        // background: rowData.status === true ? "#008000aa" : "#f90000aa",
+                        // borderRadius: "4px",
+                        // paddingLeft: 5,
+                        // paddingRight: 5,
+                    }}
+                >
+                    {rowData.scheduleState === true ? (
+                        <FormGroup>
+                            <Chip label="NEW" sx={chipErrorSX} />
+                            {/* <FormControlLabel control={<Switch size="small" />} checked={true} /> */}
+                        </FormGroup>
+                    ) : (
+                        <FormGroup>
+                            <Chip label="NEW" sx={chipErrorSX} />
+                            {/* <FormControlLabel control={<Switch color="error" size="small" />} checked={false} /> */}
+                        </FormGroup>
+                    )}
+                </div>
+            )
         }
     ];
 
@@ -65,44 +123,73 @@ function ViewVahicleDetails() {
     const error = useSelector((state) => state.vehicleReducer.errorMsg);
     const vehicle = useSelector((state) => state.vehicleReducer.vehicle);
     const vehicleList = useSelector((state) => state.vehicleReducer.vehicleList);
+    const fillingStation = useSelector((state) => state.fillingStationReducer.fillingStationDetails);
 
     useEffect(() => {
-        if (vehicleList?.length > 0) {
-            setTableData(vehicleList);
-        }
-    }, [vehicleList]);
-
-    useEffect(() => {
-        if (error != null) {
-            setOpenErrorToast(true);
-        }
-    }, [error]);
-
-    useEffect(() => {
-        if (vehicle) {
-            console.log(currentUser.id);
-            setHandleToast(true);
-            dispatch(getAllVehicleData(currentUser.id));
-        }
-    }, [vehicle]);
-
-    // get all
-    useEffect(() => {
-        console.log(currentUser.id);
-        dispatch(getAllVehicleData(currentUser.id));
+        dispatch(getFillingStationDetailsManagerWise(currentUser.username));
     }, []);
 
+    useEffect(() => {
+        console.log(fillingStation);
+        setFillingStationId(fillingStation[0].id);
+    }, [fillingStation]);
+
+    // useEffect(() => {
+    //     const arrayList = [];
+    //     AuthService.fetchNewRequstByUserId(currentUser.id).then((res) => {
+    //         let newRequest = res.data;
+
+    //         newRequest?.payload[0].forEach((element) => {
+    //             console.log(element.id);
+    //             const initialValues = {
+    //                 id: element.id,
+    //                 customer: currentUser,
+    //                 vehicle: element.vehicle.vehicleNumber,
+    //                 actualQuata: element.fuelRequest.actualQuata,
+    //                 balanceQuata: '',
+    //                 eligibleQuata: '',
+    //                 availableDate: element.availableDate,
+    //                 scheduleTime: '',
+    //                 vehicleType: '',
+    //                 fuelType: '',
+    //                 fualAmount: element.fuelRequest.fuelAmount,
+    //                 pricePerLiter: '',
+    //                 fuelStation: null,
+    //                 // lastDate: dateofSunday,
+    //                 scheduleState: element.scheduleState
+    //             };
+    //             arrayList.push(initialValues);
+    //         });
+    //         setTableData(arrayList);
+    //     });
+    // }, []);
+
+    useEffect(() => {
+        // const id = fillingStation.id;
+        console.log(fillingstationId);
+        // alert(fillingstationId);
+        const getQuotadata = async () => {
+            const reqData = await fetch(
+                'http://localhost:8090/api/auth/v1/fuelrequest/get-daily-income-by-fuel-station-id/' + `${fillingstationId}`
+            );
+            const resData = await reqData.json();
+            console.log(resData);
+            // for (let i = 0; i < resData.length; i++) {
+            //     dates.push(resData[i][0]);
+            //     quota.push(parseInt(resData[i][1]));
+            // }
+            // setWeekDays(dates);
+            // setAcceptedQuota(quota);
+        };
+        getQuotadata();
+    }, [fillingstationId]);
+
     const handleClickOpen = (type, data) => {
-        if (type === 'VIEW_UPDATE') {
+        if (type === 'VIEW') {
             setMode(type);
-            setVehicleId(data.id);
-        } else if (type === 'INSERT') {
-            setVehicleId('');
-            setMode(type);
-        } else {
-            setMode(type);
-            setVehicleId(data.id);
+            setNewRequestId(data);
         }
+
         setOpen(true);
     };
 
@@ -118,7 +205,7 @@ function ViewVahicleDetails() {
     };
     return (
         <div>
-            <MainCard title="Vehicle Details">
+            <MainCard title="Income Report">
                 {/* <div style={{ textAlign: 'right' }}> Last Modified Date : {lastModifiedTimeDate}</div> */}
                 <br />
                 <Grid container spacing={gridSpacing}>
@@ -141,8 +228,8 @@ function ViewVahicleDetails() {
                                         //     onClick: () => handleClickOpen('VIEW_UPDATE', rowData)
                                         // }),
                                         (rowData) => ({
-                                            icon: tableIcons.VisibilityIcon,
-                                            tooltip: 'View',
+                                            icon: tableIcons.PaymentsIcon,
+                                            tooltip: 'Confirm',
                                             onClick: () => handleClickOpen('VIEW', rowData)
                                         })
                                     ]}
@@ -187,11 +274,15 @@ function ViewVahicleDetails() {
                                     }}
                                 />
 
-                                {open ? <VehicleDetails open={open} handleClose={handleClose} vehicleId={vehicleId} mode={mode} /> : ''}
+                                {/* {open ? (
+                                    <NewScheduleOwner open={open} handleClose={handleClose} newRequest={newRequestId} mode={mode} />
+                                ) : (
+                                    ''
+                                )}
                                 {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}
                                 {openErrorToast ? (
                                     <ErrorMsg openToast={openErrorToast} handleToast={setOpenErrorToast} mode={mode} />
-                                ) : null}
+                                ) : null} */}
                             </Grid>
                         </Grid>
                         {/* </SubCard> */}
@@ -202,4 +293,4 @@ function ViewVahicleDetails() {
     );
 }
 
-export default ViewVahicleDetails;
+export default ViewIncomeReport;

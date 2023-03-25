@@ -29,6 +29,7 @@ import ElectricRickshawIcon from '@mui/icons-material/ElectricRickshaw';
 import EvStationIcon from '@mui/icons-material/EvStation';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import ViewIncomeReport from 'views/pages/incomeReport/ViewIncomeReport';
 // ==============================|| MAIN NAVBAR / HEADER ||============================== //
 
 const Header = ({ handleLeftDrawerToggle }) => {
@@ -71,7 +72,7 @@ const Header = ({ handleLeftDrawerToggle }) => {
 
     const generateToken = () => {
         // setAnchorEl(null);
-        navigate('/generate-token', { replace: true });
+        navigate('/generate-token-for-all-vehicles', { replace: true });
     };
 
     const makePayement = () => {
@@ -83,6 +84,11 @@ const Header = ({ handleLeftDrawerToggle }) => {
     const requestFuelFromFS = () => {
         setAnchorEl(null);
         navigate('/fuel-request-filling-station', { replace: true });
+    };
+
+    const viewIncomeReport = () => {
+        setAnchorEl(null);
+        navigate('/income-report', { replace: true });
     };
     useEffect(() => {
         const currentUser = AuthService.getCurrentUser();
@@ -146,12 +152,10 @@ const Header = ({ handleLeftDrawerToggle }) => {
             </List>
             <Divider />
             <List>
-                {['QR Code Generate', 'Make Payment'].map((text, index) => (
+                {['QR Code Generate'].map((text, index) => (
                     <ListItem key={text} disablePadding>
                         <ListItemButton>
-                            <ListItemIcon>
-                                {index % 2 === 0 ? <QrCode2Icon onClick={generateToken} /> : <PaymentsIcon onClick={makePayement} />}
-                            </ListItemIcon>
+                            <ListItemIcon>{index % 2 === 0 ? <QrCode2Icon onClick={generateToken} /> : ''}</ListItemIcon>
                             <ListItemText primary={text} />
                         </ListItemButton>
                     </ListItem>
@@ -283,7 +287,6 @@ const Header = ({ handleLeftDrawerToggle }) => {
                                 <MenuItem onClick={manageFuelStationDetails}> Add Fuel Station </MenuItem>
                                 <MenuItem onClick={manageFuelRequest}> Fuel Request </MenuItem>
                                 <MenuItem onClick={manageFuelRequestFormFillingStations}> Fuel Request From Filling Stations</MenuItem>
-                                {/* <MenuItem onClick={makePayement}> Make Payment </MenuItem> */}
 
                                 {/* <MenuItem onClick={handleClose}>View Income Report</MenuItem>
                          <MenuItem onClick={handleClose}>Manage User </MenuItem> */}
@@ -319,13 +322,13 @@ const Header = ({ handleLeftDrawerToggle }) => {
                                     horizontal: 'left'
                                 }}
                             >
-                                <MenuItem onClick={manageFuelStationDetails}> View Filling Ststion Details </MenuItem>
-                                <MenuItem onClick={manageFuelRequest}> Update Fuel Stock </MenuItem>
-                                <MenuItem onClick={makePayement}> Scan QR Code </MenuItem>
+                                {/* <MenuItem onClick={manageFuelStationDetails}> View Filling Ststion Details </MenuItem> */}
+                                {/* <MenuItem onClick={manageFuelRequest}> Update Fuel Stock </MenuItem> */}
+                                {/* <MenuItem onClick={makePayement}> Scan QR Code </MenuItem> */}
                                 <MenuItem onClick={requestFuelFromFS}> Request Fuel From FuelIn </MenuItem>
 
-                                {/* <MenuItem onClick={handleClose}>View Income Report</MenuItem>
-                         <MenuItem onClick={handleClose}>Manage User </MenuItem> */}
+                                <MenuItem onClick={viewIncomeReport}>View Income Report</MenuItem>
+                                {/* <MenuItem onClick={handleClose}>Manage User </MenuItem> */}
                             </Menu>
                         </Box>
                     )}

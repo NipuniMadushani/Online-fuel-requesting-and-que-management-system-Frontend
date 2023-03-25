@@ -14,7 +14,7 @@ import { useEffect } from 'react';
 
 const OrderSummary = ({ value }) => {
     useEffect(() => {
-        console.log(value.fualAmount);
+        console.log(value.fuelAmount);
     }, []);
 
     return (
@@ -32,6 +32,8 @@ const OrderSummary = ({ value }) => {
                             <TableCell>Sub Total</TableCell>
                             <TableCell align="right">
                                 <Typography variant="subtitle1">{value.fualAmount}</Typography>
+
+                                <Typography variant="subtitle1">{value.fuelAmount}</Typography>
                                 {/* {checkout.subtotal && <Typography variant="subtitle1">{currency(checkout.subtotal).format()}</Typography>} */}
                             </TableCell>
                         </TableRow>
@@ -53,6 +55,7 @@ const OrderSummary = ({ value }) => {
                             </TableCell>
                             <TableCell align="right" sx={{ borderBottom: 'none' }}>
                                 <Typography variant="subtitle1">{value.fualAmount}</Typography>
+                                <Typography variant="subtitle1">{value.fuelAmount}</Typography>
                                 {/* {checkout.total && <Typography variant="subtitle1">{currency(checkout.total).format()}</Typography>} */}
                             </TableCell>
                         </TableRow>

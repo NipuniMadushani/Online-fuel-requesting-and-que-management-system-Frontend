@@ -213,24 +213,27 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
     };
 
     useEffect(() => {
-        const getRegisteredVehicleCount = async () => {
-            const reqData = await fetch(
-                'http://localhost:8090/api/auth/v1/fuel-station/remainingFuelCount/' + fillingStationDetails[0].id + '/' + categoryType
-            ); // console.log(await reqData.json());                 const vehicleCount = await reqData.json();
-            const fuelCount = await reqData.json();
+        if (categoryType != null) {
+            const getRegisteredVehicleCount = async () => {
+                const reqData = await fetch(
+                    'http://localhost:8090/api/auth/v1/fuel-station/remainingFuelCount/' + fillingStationDetails[0].id + '/' + categoryType
+                ); // console.log(await reqData.json());                 const vehicleCount = await reqData.json();
+                const fuelCount = await reqData.json();
 
-            const initialValues = {
-                id: '',
-                balanceQuata: fuelCount.remainingPetrol,
-                consumeQuata: fuelCount.consumePetrol,
-                fuelType: categoryType,
-                pricePerLiter: fuelCount.pricePerLiter,
-                fuelAmount: ''
+                const initialValues = {
+                    id: '',
+                    balanceQuata: fuelCount.remainingPetrol,
+                    consumeQuata: fuelCount.consumePetrol,
+                    fuelType: categoryType,
+                    pricePerLiter: fuelCount.pricePerLiter,
+                    fuelAmount: ''
+                };
+                setLoadValues(initialValues);
+                // setVehicleCount(vehicleCount);
             };
-            setLoadValues(initialValues);
-            // setVehicleCount(vehicleCount);
-        };
-        getRegisteredVehicleCount();
+
+            getRegisteredVehicleCount();
+        }
     }, [categoryType]);
 
     useEffect(() => {
@@ -411,10 +414,10 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                         // error={Boolean(touched.fuelType && errors.fuelType)}
                                                         // helperText={touched.fuelType && errors.fuelType ? errors.fuelType : ''}
                                                     >
-                                                        <MenuItem dense={true} value={'Petrol'} onClick={selectFuelType}>
+                                                        <MenuItem dense={true} value={'petrol'} onClick={selectFuelType}>
                                                             Petrol
                                                         </MenuItem>
-                                                        <MenuItem dense={true} value={'Diesel'} onClick={selectFuelType}>
+                                                        <MenuItem dense={true} value={'diesel'} onClick={selectFuelType}>
                                                             Diesel
                                                         </MenuItem>
                                                     </TextField>
@@ -675,7 +678,6 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                         {/* map */}
                     </div>
                 </DialogContent>
-                i
             </Dialog>
         </div>
     );

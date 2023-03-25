@@ -1,13 +1,13 @@
 import { useEffect, useState, forwardRef } from 'react';
 import MaterialTable from 'material-table';
-
+import { useTheme, styled } from '@mui/material/styles';
 import tableIcons from 'utils/MaterialTableIcons';
 import { gridSpacing } from 'store/constant';
 import { useSelector, useDispatch } from 'react-redux';
 
 import MainCard from 'ui-component/cards/MainCard';
 
-import { FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
+import { Chip, FormControlLabel, FormGroup, Grid, Switch } from '@mui/material';
 
 import SuccessMsg from 'views/messages/SuccessMsg';
 import ErrorMsg from 'views/messages/ErrorMsg';
@@ -22,13 +22,17 @@ import {
 } from 'store/actions/FuelRequestAction';
 import DeleteMsg from 'views/messages/DeleteMsg';
 import AcceptMsg from 'views/messages/AcceptMsg';
+import { useNavigate } from 'react-router';
 
 function ViewFuelRequst() {
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
+    const navigate = useNavigate();
     const [fuelRequstId, setFuelRequstId] = useState('');
     const [mode, setMode] = useState('INSERT');
     const [openToast, setHandleToast] = useState(false);
+    // const [openApproveToast, setApproveHandleToast] = useState(false);
+    // const [openDeleteToast, setDeleteHandleToast] = useState(false);
     const [openErrorToast, setOpenErrorToast] = useState(false);
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
@@ -36,6 +40,25 @@ function ViewFuelRequst() {
     const [openDeleteToast, setDeleteHandleToast] = useState(false);
     const [statusMsg, setStatusMsg] = useState('');
     const [approveStatusMsg, setApproveStatusMsg] = useState('');
+    const theme = useTheme();
+    const chipSX = {
+        height: 24,
+        padding: '0 6px'
+    };
+    const chipErrorSX = {
+        ...chipSX,
+        color: theme.palette.warning.dark,
+        backgroundColor: theme.palette.warning.light,
+        marginRight: '5px'
+    };
+
+    const chipFilter = (value) => {
+        console.log(value);
+        // console.log(this);
+        // console.log(item);
+        // navigate('/payment', { replace: true });
+        navigate('/payment', { state: { value: value, pageType: '/fuel-request' } }, { replace: true });
+    };
     const columns = [
         {
             title: 'Id',
@@ -134,6 +157,83 @@ function ViewFuelRequst() {
                     )}
                 </div>
             )
+        },
+        {
+            title: 'Payment',
+            field: 'paid',
+            filterPlaceholder: 'True || False',
+            align: 'center',
+            emptyValue: () => <em>null</em>,
+            render: (rowData) => (
+                <div
+                    style={{
+                        alignItems: 'center',
+                        align: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                        // background: rowData.status === true ? "#008000aa" : "#f90000aa",
+                        // borderRadius: "4px",
+                        // paddingLeft: 5,
+                        // paddingRight: 5,
+                    }}
+                >
+                    {rowData.paid == false &&
+                    rowData.reject_state === false &&
+                    rowData.approval_state === true &&
+                    currentUser?.roles[0] === 'ROLE_CUSTOMER' ? (
+                        <FormGroup>
+                            <Chip label="MAKE PAYMENT" sx={chipErrorSX} clickable={true} onClick={() => chipFilter(rowData)} />
+                            {/* <FormControlLabel control={<Switch size="small" />} checked={true} /> */}
+                        </FormGroup>
+                    ) : (
+                        ''
+                        // <FormGroup>
+                        //     <Chip label="DONE" sx={chipErrorSX} />
+                        //     {/* <FormControlLabel control={<Switch color="error" size="small" />} checked={false} /> */}
+                        // </FormGroup>
+                    )}
+                </div>
+            )
+        },
+
+        {
+            title: 'Payment Status',
+            field: 'paid',
+            filterPlaceholder: 'True || False',
+            align: 'center',
+            emptyValue: () => <em>null</em>,
+            render: (rowData) => (
+                <div
+                    style={{
+                        alignItems: 'center',
+                        align: 'center',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                        // background: rowData.status === true ? "#008000aa" : "#f90000aa",
+                        // borderRadius: "4px",
+                        // paddingLeft: 5,
+                        // paddingRight: 5,
+                    }}
+                >
+                    {rowData.paid == false ? (
+                        <FormGroup>
+                            <Chip label="NO PAID" sx={chipErrorSX} clickable={true} />
+                            {/* <FormControlLabel control={<Switch size="small" />} checked={true} /> */}
+                        </FormGroup>
+                    ) : (
+                        <FormGroup>
+                            <Chip label="PAID" sx={chipErrorSX} clickable={true} />
+                            {/* <FormControlLabel control={<Switch size="small" />} checked={true} /> */}
+                        </FormGroup>
+                        // <FormGroup>
+                        //     <Chip label="DONE" sx={chipErrorSX} />
+                        //     {/* <FormControlLabel control={<Switch color="error" size="small" />} checked={false} /> */}
+                        // </FormGroup>
+                    )}
+                </div>
+            )
         }
     ];
 
@@ -222,6 +322,7 @@ function ViewFuelRequst() {
             setMode(type);
             setFuelRequstId(data.id);
         }
+        // to open popup
         setOpen(true);
     };
 
@@ -241,6 +342,14 @@ function ViewFuelRequst() {
 
     const handleToast = () => {
         setHandleToast(false);
+    };
+
+    const handleToastAccept = () => {
+        setAcceptHandleToast(false);
+    };
+
+    const handleToastDelete = () => {
+        setDeleteHandleToast(false);
     };
     const handleErrorToast = () => {
         setOpenErrorToast(false);
@@ -276,7 +385,6 @@ function ViewFuelRequst() {
                                     editable={{
                                         onRowDelete: (oldData) =>
                                             new Promise((resolve, reject) => {
-                                                alert(oldData.id);
                                                 dispatch(deleteFuelRequestById(oldData.id));
                                                 setTimeout(() => {
                                                     const dataDelete = [...tableData];
@@ -297,6 +405,15 @@ function ViewFuelRequst() {
                                                   onClick: () => handleClickOpen('INSERT', null)
                                               }
                                             : null,
+
+                                        // currentUser?.roles[0] === 'ROLE_CUSTOMER'
+                                        //     ? {
+                                        //           icon: tableIcons.Add,
+                                        //           tooltip: 'Add New',
+                                        //           isFreeAction: true,
+                                        //           onClick: () => handleClickOpen('INSERT', null)
+                                        //       }
+                                        //     : null,
 
                                         currentUser?.roles[0] === 'ROLE_ADMIN'
                                             ? (rowData) => ({
@@ -354,10 +471,10 @@ function ViewFuelRequst() {
                                     }}
                                 />
                                 {openDeleteToast ? (
-                                    <DeleteMsg openToast={openDeleteToast} handleToast={handleToast} mode={statusMsg} />
+                                    <DeleteMsg openToast={openDeleteToast} handleToast={handleToastDelete} mode={statusMsg} />
                                 ) : null}
                                 {openAcceptToast ? (
-                                    <AcceptMsg openToast={openAcceptToast} handleToast={handleToast} mode={approveStatusMsg} />
+                                    <AcceptMsg openToast={openAcceptToast} handleToast={handleToastAccept} mode={approveStatusMsg} />
                                 ) : null}
                                 {open ? <FuelRequest open={open} handleClose={handleClose} fuelRequestId={fuelRequstId} mode={mode} /> : ''}
                                 {openToast ? <SuccessMsg openToast={openToast} handleToast={handleToast} mode={mode} /> : null}

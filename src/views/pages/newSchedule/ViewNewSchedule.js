@@ -153,7 +153,6 @@ function ViewNewSchedule() {
     }, []);
 
     useEffect(() => {
-        console.log(currentUser.id);
         dispatch(getAllVehicleData(currentUser.id));
         // dispatch(getActivity_SupplementLatestModifiedDetails());
     }, []);

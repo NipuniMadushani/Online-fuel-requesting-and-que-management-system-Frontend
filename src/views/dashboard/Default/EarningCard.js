@@ -22,6 +22,7 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import { useNavigate } from 'react-router';
 import AuthService from 'services/auth.service';
+
 const CardWrapper = styled(MainCard)(({ theme }) => ({
     backgroundColor: theme.palette.secondary.dark,
     color: '#fff',
@@ -96,7 +97,7 @@ const EarningCard = ({ isLoading }) => {
             ) : (
                 // <SkeletonEarningCard />
 
-                <CardWrapper border={false} content={false}>
+                <CardWrapper border={false} content={false} onClick={manageVehicleDetails}>
                     <Box sx={{ p: 2.25 }}>
                         {/* {vehicleOwnerCardVisible ? ( */}
                         <Grid container direction="column">

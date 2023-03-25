@@ -78,7 +78,7 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
 
     const generateToken = () => {
         // setAnchorEl(null);
-        navigate('/generate-token', { replace: true });
+        navigate('/generate-token-for-all-vehicles', { replace: true });
     };
     useEffect(() => {
         const currentUser = AuthService.getCurrentUser();
@@ -96,7 +96,7 @@ const TotalOrderLineChartCard = ({ isLoading }) => {
                 ''
             ) : (
                 // <SkeletonTotalOrderCard />
-                <CardWrapper border={false} content={false}>
+                <CardWrapper border={false} content={false} onClick={generateToken}>
                     <Box sx={{ p: 2.25 }}>
                         {vehicleOwnerCardVisible ? (
                             <Grid container direction="column">

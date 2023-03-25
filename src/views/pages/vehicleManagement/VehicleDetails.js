@@ -99,6 +99,7 @@ function VehicleDetails({ open, handleClose, mode, vehicleId }) {
         });
     });
 
+    // validation schema
     const validationSchema = yup.object().shape({
         status: yup.boolean(),
         vehicleNumber: yup.string().required('Required field').checkDuplicateVehicleNumber('Already Exist Vehicle Number'),
@@ -106,7 +107,7 @@ function VehicleDetails({ open, handleClose, mode, vehicleId }) {
         vehicleType: yup.string().required('Required field'),
         fuelType: yup.string().required('Required field')
     });
-
+    // save
     const handleSubmitForm = (data) => {
         console.log(data);
         if (mode === 'INSERT') {
@@ -168,7 +169,6 @@ function VehicleDetails({ open, handleClose, mode, vehicleId }) {
                             enableReinitialize={true}
                             initialValues={loadValues || initialValues}
                             onSubmit={(values) => {
-                                console.log(values);
                                 handleSubmitForm(values);
                             }}
                             validationSchema={validationSchema}
@@ -256,21 +256,24 @@ function VehicleDetails({ open, handleClose, mode, vehicleId }) {
                                                         error={Boolean(touched.vehicleType && errors.vehicleType)}
                                                         helperText={touched.vehicleType && errors.vehicleType ? errors.vehicleType : ''}
                                                     >
-                                                        <MenuItem dense={true} value={'Bike'}>
-                                                            Bike
+                                                        <MenuItem dense={true} value={'CAR'}>
+                                                            CAR
                                                         </MenuItem>
-                                                        <MenuItem dense={true} value={'Three Wheeler'}>
-                                                            Three Wheeler
+                                                        <MenuItem dense={true} value={'VAN'}>
+                                                            VAN
                                                         </MenuItem>
-                                                        <MenuItem dense={true} value={'Bus'}>
-                                                            Bus
+                                                        <MenuItem dense={true} value={'BUS'}>
+                                                            BUS
                                                         </MenuItem>
-                                                        <MenuItem dense={true} value={'Lorry'}>
-                                                            Lorry
+                                                        <MenuItem dense={true} value={'THREE-WHEELER'}>
+                                                            THREE-WHEELER
                                                         </MenuItem>
-                                                        <MenuItem dense={true} value={'Van'}>
+                                                        <MenuItem dense={true} value={'CUTTING-GRASS-MACHINE'}>
+                                                            CUTTING-GRASS-MACHINE
+                                                        </MenuItem>
+                                                        {/* <MenuItem dense={true} value={'Van'}>
                                                             Van
-                                                        </MenuItem>
+                                                        </MenuItem> */}
                                                     </TextField>
                                                 </Grid>
 
