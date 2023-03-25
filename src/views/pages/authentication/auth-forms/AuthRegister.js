@@ -159,7 +159,7 @@ const FirebaseRegister = ({ ...others }) => {
                     console.log('username:' + values.username);
                     try {
                         if (scriptedRef.current) {
-                            AuthService.register(values.username, values.email, values.password).then(
+                            AuthService.register(values.username, values.email, values.password, values.nic, values.phoneNumber).then(
                                 (response) => {
                                     setStatus({ success: true });
                                     setSuccessful(true);

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEffect, forwardRef, useState } from 'react';
+import dayjs from 'dayjs';
 import { Map, InfoWindow, Marker, GoogleApiWrapper } from 'google-maps-react';
 import {
     Dialog,
@@ -91,7 +92,10 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
         lastDate: dateofSunday,
         activeState: true
     };
-    const today = Date.now();
+    // const today = Date.now();
+    const today = dayjs();
+
+    const todayStartOfTheDay = today.startOf('day');
     // alert(today);
 
     // const [formValues, setFormValues] = useState(initialValues);
@@ -206,7 +210,6 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
 
     const getEligibleQuotaByNumber = (value) => {
         if (mode === 'INSERT') {
-            alert('nipuni');
             dispatch(getEligibleQuotaByVehicleNumber(value));
         }
     };
@@ -235,7 +238,9 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
     };
 
     useEffect(() => {
-        setVehicleDetails(vehicleList);
+        if (vehicleList != null) {
+            setVehicleDetails(vehicleList);
+        }
     }, [vehicleList]);
 
     useEffect(() => {
@@ -543,7 +548,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                 {mode === 'INSERT' ? (
                                                     <Grid item xs={6}>
                                                         <TextField
-                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
+                                                            disabled
                                                             // label={vehicleNumber}
                                                             label="Price For Liter(RS.)"
                                                             InputLabelProps={{
@@ -663,6 +668,8 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                         // adapterLocale={locale}
                                                     >
                                                         <TimePicker
+                                                            defaultValue={todayStartOfTheDay}
+                                                            disablePast
                                                             onChange={(value) => {
                                                                 setFieldValue(`scheduleTime`, value);
                                                             }}
@@ -671,7 +678,6 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                                 shrink: true
                                                             }}
                                                             disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
-                                                            M
                                                             // disabled={
                                                             //     mode == 'VIEW_UPDATE' ||
                                                             //     mode == 'VIEW'
@@ -831,18 +837,6 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                         >
                                                             REJECT WITH NEW SCHEDULE
                                                         </Button>
-                                                        {/* <FormControl>
-                                                            <FormLabel id="demo-controlled-radio-buttons-group">Approve/ Reject</FormLabel>
-                                                            <RadioGroup
-                                                                aria-labelledby="demo-controlled-radio-buttons-group"
-                                                                name="fuelType"
-                                                                value={values.fuelType}
-                                                                onChange={handleChange}
-                                                            >
-                                                                <FormControlLabel value="approve" control={<Radio />} label="Approve" />
-                                                                <FormControlLabel value="reject" control={<Radio />} label="Reject" />
-                                                            </RadioGroup>
-                                                        </FormControl> */}
                                                     </Grid>
                                                 ) : (
                                                     ''

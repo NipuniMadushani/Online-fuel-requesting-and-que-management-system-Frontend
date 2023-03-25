@@ -56,7 +56,7 @@ const ViewGenerateToken = () => {
         }
     };
     useEffect(() => {
-        console.log(request);
+        // console.log(request);
     }, [request]);
 
     const handleClick = () => {

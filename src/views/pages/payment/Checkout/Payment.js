@@ -47,7 +47,7 @@ function getColor(color) {
 
 // ==============================|| CHECKOUT PAYMENT - MAIN ||============================== //
 
-const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request }) => {
+const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request, pageType }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -69,6 +69,10 @@ const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request }) =>
         setOpen(false);
     };
 
+    const onBackParentPage = () => {
+        console.log(pageType);
+        navigate(pageType, { replace: true });
+    };
     const [complete, setComplete] = useState(false);
 
     const [disableCompeleteOrder, setDisableCompleteOrder] = useState(false);
@@ -106,18 +110,33 @@ const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request }) =>
     const completeHandler = () => {
         const newRequestId = request.id;
         if (payment == 'card') {
-            const res = axios({
-                method: 'put',
-                url: `http://localhost:8090/api/auth/v1/new-schedule/confirmSchedule/${newRequestId}`
-            })
-                .then((response) => {
-                    setOpenQRButton(true);
-                    setDisableCompleteOrder(true);
-                    console.log(response.data);
+            if (pageType == 'new-schedule') {
+                const res = axios({
+                    method: 'put',
+                    url: `http://localhost:8090/api/auth/v1/new-schedule/confirmSchedule/${newRequestId}`
                 })
-                .catch((err) => {
-                    console.log(err);
-                });
+                    .then((response) => {
+                        setOpenQRButton(true);
+                        setDisableCompleteOrder(true);
+                        console.log(response.data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            } else {
+                const res = axios({
+                    method: 'put',
+                    url: `http://localhost:8090/api/auth/v1/fuelrequest/makePayment/${newRequestId}`
+                })
+                    .then((response) => {
+                        setOpenQRButton(true);
+                        setDisableCompleteOrder(true);
+                        console.log(response.data);
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
             setOpenToastPayment(true);
         } else {
             // alert('Please Select Payment Method');
@@ -175,7 +194,7 @@ const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request }) =>
                     <Grid item xs={12}>
                         <Grid container spacing={3} alignItems="center" justifyContent="space-between">
                             <Grid item>
-                                <Button variant="text" startIcon={<KeyboardBackspaceIcon />} onClick={onBack}>
+                                <Button variant="text" startIcon={<KeyboardBackspaceIcon />} onClick={onBackParentPage}>
                                     Back
                                 </Button>
                             </Grid>

@@ -166,7 +166,6 @@ function NewScheduleOwner({ open, handleClose, mode, newRequest }) {
             fuelStation: data.fuelStation,
             fuelRequest: fuelRequest
         };
-        console.log(initialValues);
         axios
             .post(`http://localhost:8090/api/auth/v1/new-schedule/`, initialValues)
             .then(function (response) {
@@ -201,7 +200,7 @@ function NewScheduleOwner({ open, handleClose, mode, newRequest }) {
     const makePayment = (value) => {
         console.log(value);
         // setOpenPayment(true);
-        navigate('/payment', { state: { value: value } }, { replace: true });
+        navigate('/payment', { state: { value: value, pageType: '/new-schedule' } }, { replace: true });
         // if (mode === 'APPROVE') {
         //     dispatch(approveFuelRequestById(value));
         //     handleClose();

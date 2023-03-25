@@ -12,6 +12,8 @@ import ViewFuelStationRegistrtion from 'views/pages/fuelStation/ViewFuelStationR
 import { element } from 'prop-types';
 import ViewNewSchedule from 'views/pages/newSchedule/ViewNewSchedule';
 import ViewFuelRequestFS from 'views/pages/fillingStationFuelRequest/ViewFuelRequestFS';
+import ViewGenerateTokenForAllVehicle from 'views/pages/generateQRCode/GenerateTokenForAllVehicle';
+import ViewIncomeReport from 'views/pages/incomeReport/ViewIncomeReport';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard/Default')));
@@ -126,7 +128,12 @@ const MainRoutes = {
         {
             path: 'fuel-request-filling-station',
             element: <ViewFuelRequestFS />
-        }
+        },
+        {
+            path: 'generate-token-for-all-vehicles',
+            element: <ViewGenerateTokenForAllVehicle />
+        },
+        { path: 'income-report', element: <ViewIncomeReport /> }
     ]
 };
 
