@@ -18,8 +18,10 @@ import axios from 'axios';
 import Payment from './Checkout/Payment';
 import { useLocation } from 'react-router';
 import OrderSummary from './Checkout/OrderSummary';
+
 function ViewPayment() {
     const { state } = useLocation();
+    // const { statePage } = useLocation();
     const currentUser = AuthService.getCurrentUser();
     const [open, setOpen] = useState(false);
     const [vehicleId, setVehicleId] = useState('');
@@ -29,6 +31,7 @@ function ViewPayment() {
     const [tableData, setTableData] = useState([]);
     const [lastModifiedTimeDate, setLastModifiedTimeDate] = useState(null);
     const { value } = state;
+    const { pageType } = state;
 
     const columns = [
         {
@@ -177,10 +180,10 @@ function ViewPayment() {
                 }
             })
             .then(() => {
-                alert('Payment Success');
+                // alert('Payment Success');
             })
             .catch((error) => {
-                alert(error);
+                // alert(error);
             });
     }
     return (
@@ -214,7 +217,7 @@ function ViewPayment() {
                 <Grid container spacing={gridSpacing}>
                     <Grid item>
                         {' '}
-                        <Payment request={value} />
+                        <Payment request={value} pageType={pageType} />
                     </Grid>
                 </Grid>
             </MainCard>

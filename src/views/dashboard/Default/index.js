@@ -422,12 +422,14 @@ const Dashboard = () => {
                                             columns={columns}
                                             data={tableData}
                                             actions={[
-                                                {
-                                                    icon: tableIcons.Add,
-                                                    tooltip: 'Add New',
-                                                    isFreeAction: true,
-                                                    onClick: () => handleClickOpen('INSERT', null)
-                                                },
+                                                currentUser?.roles[0] === 'ROLE_ADMIN'
+                                                    ? {
+                                                          icon: tableIcons.Add,
+                                                          tooltip: 'Add New',
+                                                          isFreeAction: true,
+                                                          onClick: () => handleClickOpen('INSERT', null)
+                                                      }
+                                                    : '',
                                                 (rowData) => ({
                                                     icon: tableIcons.Edit,
                                                     tooltip: 'Edit',

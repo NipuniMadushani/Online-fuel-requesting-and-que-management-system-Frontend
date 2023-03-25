@@ -147,7 +147,7 @@ function ViewFuelStationRegistrtion() {
             setMode(type);
             setFuelStationId(data.id);
         }
-        setOpen(true);
+        currentUser?.roles[0] === 'ROLE_ADMIN' ? setOpen(true) : '';
     };
 
     const handleClose = () => {
@@ -173,12 +173,14 @@ function ViewFuelStationRegistrtion() {
                                     columns={columns}
                                     data={tableData}
                                     actions={[
-                                        {
-                                            icon: tableIcons.Add,
-                                            tooltip: 'Add New',
-                                            isFreeAction: true,
-                                            onClick: () => handleClickOpen('INSERT', null)
-                                        },
+                                        currentUser?.roles[0] === 'ROLE_ADMIN'
+                                            ? {
+                                                  icon: tableIcons.Add,
+                                                  tooltip: 'Add New',
+                                                  isFreeAction: true,
+                                                  onClick: () => handleClickOpen('INSERT', null)
+                                              }
+                                            : null,
                                         (rowData) => ({
                                             icon: tableIcons.Edit,
                                             tooltip: 'Edit',
@@ -231,7 +233,7 @@ function ViewFuelStationRegistrtion() {
                                     }}
                                 />
 
-                                {open ? (
+                                {open && currentUser?.roles[0] === 'ROLE_ADMIN' ? (
                                     <FuelStation open={open} handleClose={handleClose} fuelStationId={fuelStationId} mode={mode} />
                                 ) : (
                                     ''

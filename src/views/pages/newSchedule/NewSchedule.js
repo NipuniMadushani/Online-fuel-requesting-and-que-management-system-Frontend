@@ -204,7 +204,6 @@ function NewSchedule({ open, handleClose, mode, fuelRequestId, vehicleObj }) {
             fuelStation: data.fuelStation,
             fuelRequest: fuelRequest
         };
-        console.log(initialValues);
         axios
             .post(`http://localhost:8090/api/auth/v1/new-schedule/`, initialValues)
             .then(function (response) {

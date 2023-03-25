@@ -340,7 +340,7 @@ function ViewFuelRequestFS() {
                                     editable={{
                                         onRowDelete: (oldData) =>
                                             new Promise((resolve, reject) => {
-                                                alert(oldData.id);
+                                                // alert(oldData.id);
                                                 dispatch(deleteFuelRequestById(oldData.id));
                                                 setTimeout(() => {
                                                     const dataDelete = [...tableData];
@@ -362,14 +362,18 @@ function ViewFuelRequestFS() {
                                               }
                                             : null,
 
-                                        currentUser?.roles[0] === 'ROLE_ADMIN'
+                                        currentUser?.roles[0] === 'ROLE_ADMIN' &&
+                                        tableData.approvalState == false &&
+                                        tableData.rejectState == false
                                             ? (rowData) => ({
                                                   icon: tableIcons.AddTaskIcon,
                                                   tooltip: 'Approve',
                                                   onClick: () => handleClickOpen('APPROVE', rowData)
                                               })
                                             : null,
-                                        currentUser?.roles[0] === 'ROLE_ADMIN'
+                                        currentUser?.roles[0] === 'ROLE_ADMIN' &&
+                                        tableData.approvalState == false &&
+                                        tableData.rejectState == false
                                             ? (rowData) => ({
                                                   icon: tableIcons.GppBadIcon,
                                                   tooltip: 'Reject',
