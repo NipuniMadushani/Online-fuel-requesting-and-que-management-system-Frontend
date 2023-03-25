@@ -100,7 +100,7 @@ const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request, page
     };
 
     const generateQRCode = () => {
-        navigate('/generate-token', { state: { request: request } }, { replace: true });
+        navigate('/generate-token-for-all-vehicles', { state: { request: request } }, { replace: true });
     };
 
     const handleToast = () => {
@@ -110,10 +110,10 @@ const Payment = ({ checkout, onBack, onNext, handleShippingCharge, request, page
     const completeHandler = () => {
         const newRequestId = request.id;
         if (payment == 'card') {
-            if (pageType == 'new-schedule') {
+            if (pageType == '/new-schedule') {
                 const res = axios({
                     method: 'put',
-                    url: `http://localhost:8090/api/auth/v1/new-schedule/confirmSchedule/${newRequestId}`
+                    url: `http://localhost:8090/api/auth/v1/new-schedule/confirmSchedule/` + `${newRequestId}`
                 })
                     .then((response) => {
                         setOpenQRButton(true);

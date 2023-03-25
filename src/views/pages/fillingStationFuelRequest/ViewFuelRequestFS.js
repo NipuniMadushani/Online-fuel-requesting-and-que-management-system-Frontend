@@ -362,18 +362,17 @@ function ViewFuelRequestFS() {
                                               }
                                             : null,
 
-                                        currentUser?.roles[0] === 'ROLE_ADMIN' &&
-                                        tableData.approvalState == false &&
-                                        tableData.rejectState == false
-                                            ? (rowData) => ({
+                                        currentUser?.roles[0] === 'ROLE_ADMIN'
+                                            ? //  &&
+                                              // tableData.approvalState === false &&
+                                              // tableData.rejectState === false
+                                              (rowData) => ({
                                                   icon: tableIcons.AddTaskIcon,
                                                   tooltip: 'Approve',
                                                   onClick: () => handleClickOpen('APPROVE', rowData)
                                               })
                                             : null,
-                                        currentUser?.roles[0] === 'ROLE_ADMIN' &&
-                                        tableData.approvalState == false &&
-                                        tableData.rejectState == false
+                                        currentUser?.roles[0] === 'ROLE_ADMIN'
                                             ? (rowData) => ({
                                                   icon: tableIcons.GppBadIcon,
                                                   tooltip: 'Reject',

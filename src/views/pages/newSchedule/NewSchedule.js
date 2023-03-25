@@ -166,7 +166,7 @@ function NewSchedule({ open, handleClose, mode, fuelRequestId, vehicleObj }) {
         //     is: (balanceQuata) => balanceQuata < actualQuata,
         //     then: yup.number().required('Cant be ')
         // }),
-        actualQuata: yup.number().max(yup.ref('balanceQuata'), 'Requested Quota Should be less than Remaining Quota'),
+        // actualQuata: yup.number().max(yup.ref('balanceQuata'), 'Requested Quota Should be less than Remaining Quota'),
 
         lastDate: yup.date(),
 
