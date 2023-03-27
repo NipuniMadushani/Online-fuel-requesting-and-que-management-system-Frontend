@@ -102,6 +102,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
     const [loadValues, setLoadValues] = useState(null);
     const dispatch = useDispatch();
     const [vehicleDetails, setVehicleDetails] = useState();
+    const [visibleButton, setVisibleButton] = useState(true);
     //new
     const [vehicleObject, setVehicleObject] = useState();
     const [fillingStationDetails, setFillingStationDetails] = useState();
@@ -301,6 +302,13 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
 
                 // fuelStation: data.fuelStation
             };
+
+            if (eligibleQuotaDetails.balanceQuata == 0) {
+                setVisibleButton(false);
+            } else {
+                setVisibleButton(true);
+            }
+
             setLoadValues(initialValues);
         }
 
@@ -581,7 +589,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                     <Grid item xs={6}>
                                                         {/* {values.pricePerLiter ? values.pricePerLiter * values.actualQuata : 0} */}
                                                         <TextField
-                                                            disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
+                                                            // disabled={mode == 'VIEW_UPDATE' || mode == 'VIEW' || mode == 'APPROVE'}
                                                             // label={vehicleNumber}
                                                             label="Amount (RS.) "
                                                             InputLabelProps={{
@@ -593,6 +601,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                                     height: 40
                                                                 }
                                                             }}
+                                                            disabled
                                                             type="text"
                                                             variant="outlined"
                                                             // placeholder="ABC 1234"
@@ -875,7 +884,7 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                 ''
                                             )}
 
-                                            {mode == 'INSERT' ? (
+                                            {mode == 'INSERT' && visibleButton ? (
                                                 <Button className="btnSave" variant="contained" type="submit">
                                                     {mode === 'INSERT' ? 'SAVE' : 'UPDATE'}
                                                 </Button>
@@ -883,6 +892,8 @@ function FuelRequest({ open, handleClose, mode, fuelRequestId }) {
                                                 ''
                                             )}
                                         </Box>
+
+                                        {visibleButton ? '' : <Typography color="error">Already Consumed</Typography>}
 
                                         {openNewSchedule ? (
                                             <NewSchedule
